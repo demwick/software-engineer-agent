@@ -1,6 +1,6 @@
 ---
-name: roadmap
-description: View or edit the project roadmap — list phases, add a phase, remove a phase, reorder phases, rename a phase. Read or edit the canonical roadmap file. Use when the user wants to see or change the phase list without running /init again.
+name: sea-roadmap
+description: View or edit the project roadmap — list phases, add a phase, remove a phase, reorder phases, rename a phase. Read or edit the canonical roadmap file. Use when the user wants to see or change the phase list without running /sea-init again.
 argument-hint: [show | add <description> | remove <N> | move <N> <to> | rename <N> <new-name>]
 allowed-tools: Read, Write, Edit, Glob, Bash
 ---
@@ -12,7 +12,7 @@ allowed-tools: Read, Write, Edit, Glob, Bash
   See LICENSE in the repository root for the full license text.
 -->
 
-# /software-engineer-agent:roadmap
+# /sea-roadmap
 
 View or modify `.sea/roadmap.md`. Announce: **"Using the roadmap skill."**
 
@@ -21,7 +21,7 @@ Argument: $ARGUMENTS (optional — `show` or empty to view; one of the edit verb
 ## Step 1: Preconditions
 
 If `.sea/roadmap.md` doesn't exist, tell the user:
-> No roadmap found. Run `/software-engineer-agent:init` first.
+> No roadmap found. Run `/sea-init` first.
 
 Then stop.
 
@@ -46,7 +46,7 @@ Format the roadmap and print it:
 
 Progress: ██████░░░░  2/4
 
-Run /software-engineer-agent:go to advance.
+Run /sea-go to advance.
 ```
 
 No file writes for `show`.
@@ -60,7 +60,7 @@ Use this template:
 ```markdown
 ### Phase <N+1>: <short-name derived from description>
 **Goal:** <description, rewritten as one sentence>
-**Scope:** TBD — run `/software-engineer-agent:go` to let the planner fill this in.
+**Scope:** TBD — run `/sea-go` to let the planner fill this in.
 **Deliverable:** TBD
 **Depends on:** Phase N
 **Status:** pending
@@ -99,4 +99,4 @@ Just change the `### Phase N: <name>` header line. No confirmation needed — it
 - **Confirm before destructive edits.** `remove` and `move` always ask first, `add` asks before writing, `rename` doesn't need to.
 - **Archive, don't delete.** If you have to discard a phase directory, move it to `archived-<timestamp>-…/`.
 - **Keep `state.json` consistent.** Any operation that changes phase numbers must update `total_phases` and possibly `current_phase`.
-- **Do not launch agents.** Roadmap edits are mechanical — no planner, no executor. If the user wants planner help to redesign phases, they should use `/software-engineer-agent:init` with the archive flow.
+- **Do not launch agents.** Roadmap edits are mechanical — no planner, no executor. If the user wants planner help to redesign phases, they should use `/sea-init` with the archive flow.

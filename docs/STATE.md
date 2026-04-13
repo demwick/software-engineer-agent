@@ -7,16 +7,16 @@
 
 # State File Layout
 
-This document describes what software-engineer-agent writes inside a project's `.sea/` directory and how each file is used. You don't need to create any of these by hand — `/software-engineer-agent:init` generates them. This doc is the reference when you want to inspect, tweak, or debug state.
+This document describes what software-engineer-agent writes inside a project's `.sea/` directory and how each file is used. You don't need to create any of these by hand — `/sea-init` generates them. This doc is the reference when you want to inspect, tweak, or debug state.
 
 ## Directory Layout
 
 ```
 <project-root>/
-└── .sea/                # added to .gitignore automatically by /init
+└── .sea/                # added to .gitignore automatically by /sea-init
     ├── state.json               # canonical runtime state
     ├── roadmap.md               # human-readable phase list
-    ├── diagnose.json            # latest health report (if /diagnose has run)
+    ├── diagnose.json            # latest health report (if /sea-diagnose has run)
     ├── .needs-verify            # transient marker — triggers the auto-QA hook
     ├── .last-verify.log         # last test-runner output (written by auto-qa)
     └── phases/
@@ -48,18 +48,18 @@ Canonical runtime state. Every command that mutates state updates this file. Sch
 
 | Field | Written by | Purpose |
 |-------|-----------|---------|
-| `schema_version` | `/init` | Integer. Bump when state-shape changes; readers run migrations if older. |
-| `mode` | `/init` | `from-scratch` or `finish-existing` — affects /go pipeline defaults |
-| `created` | `/init` | ISO-8601 UTC timestamp of initialization |
-| `current_phase` | `/go`, `/roadmap` | Number of the active phase |
-| `total_phases` | `/init`, `/roadmap` | Total phases in the roadmap |
-| `last_session` | `/go` end, `SessionStart` | Last time a command ran |
+| `schema_version` | `/sea-init` | Integer. Bump when state-shape changes; readers run migrations if older. |
+| `mode` | `/sea-init` | `from-scratch` or `finish-existing` — affects /sea-go pipeline defaults |
+| `created` | `/sea-init` | ISO-8601 UTC timestamp of initialization |
+| `current_phase` | `/sea-go`, `/sea-roadmap` | Number of the active phase |
+| `total_phases` | `/sea-init`, `/sea-roadmap` | Total phases in the roadmap |
+| `last_session` | `/sea-go` end, `SessionStart` | Last time a command ran |
 | `last_edit` | `PostToolUse` hook (`state-tracker`) | Last time any file was edited in this project by Claude |
-| `last_commit` | `/go` end, `/quick` end | Short SHA of the most recent software-engineer-agent commit |
+| `last_commit` | `/sea-go` end, `/sea-quick` end | Short SHA of the most recent software-engineer-agent commit |
 
 ## `roadmap.md`
 
-Human-readable phase list. The planner writes it, the user can hand-edit it, and `/roadmap` edits it programmatically. Format:
+Human-readable phase list. The planner writes it, the user can hand-edit it, and `/sea-roadmap` edits it programmatically. Format:
 
 ```markdown
 # Project Roadmap
@@ -80,7 +80,7 @@ Human-readable phase list. The planner writes it, the user can hand-edit it, and
 ### Phase 2: ...
 ```
 
-`Status` transitions: `pending` → `in-progress` → `done`. Once a phase is `done`, the `/roadmap` skill refuses to remove or reorder it.
+`Status` transitions: `pending` → `in-progress` → `done`. Once a phase is `done`, the `/sea-roadmap` skill refuses to remove or reorder it.
 
 ## `phases/phase-N/plan.md`
 
@@ -112,7 +112,7 @@ trivial | medium | complex
 ### Task 2: ...
 ```
 
-If the planner cannot decide something, it inserts `[[ ASK: question ]]` markers. The `/go` skill stops and surfaces these to the user before calling the executor.
+If the planner cannot decide something, it inserts `[[ ASK: question ]]` markers. The `/sea-go` skill stops and surfaces these to the user before calling the executor.
 
 ## `phases/phase-N/progress.json` (transient)
 
@@ -128,7 +128,7 @@ Written by the executor after each successful task commit so the phase can resum
 }
 ```
 
-`/go` checks this file before launching the executor:
+`/sea-go` checks this file before launching the executor:
 - **Present** → resume context: skip `completed_tasks`, restart at `current_task`.
 - **Absent** → fresh start at task 1.
 
@@ -151,7 +151,7 @@ Notes:
 
 ## `diagnose.json`
 
-Latest output from `/software-engineer-agent:diagnose`. Schema:
+Latest output from `/sea-diagnose`. Schema:
 
 ```json
 {
@@ -167,11 +167,11 @@ Latest output from `/software-engineer-agent:diagnose`. Schema:
 }
 ```
 
-Each section's `status` is one of `pass`, `warn`, `fail`. `/status` reads this file to show the last audit result in its header.
+Each section's `status` is one of `pass`, `warn`, `fail`. `/sea-status` reads this file to show the last audit result in its header.
 
 ## `.needs-verify` (transient)
 
-A marker file created by `/go` and `/quick` after the executor finishes. Contains a single integer: the retry count (starts at `0`).
+A marker file created by `/sea-go` and `/sea-quick` after the executor finishes. Contains a single integer: the retry count (starts at `0`).
 
 The `Stop` hook (`hooks/auto-qa`) checks for this file when Claude finishes responding:
 
@@ -200,7 +200,7 @@ The platform loads the first 25KB of each `MEMORY.md` into the corresponding sub
 
 ## Gitignore
 
-`/software-engineer-agent:init` appends the following to `.gitignore` if it isn't already there:
+`/sea-init` appends the following to `.gitignore` if it isn't already there:
 
 ```
 # software-engineer-agent runtime state

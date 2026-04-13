@@ -1,6 +1,6 @@
 ---
-name: status
-description: Show the current project state — active phase, roadmap progress, last session, last commit. Read-only. Use when the user asks "where am I", "what's the status", "what did I do last time", or as a quick check before running /go.
+name: sea-status
+description: Show the current project state — active phase, roadmap progress, last session, last commit. Read-only. Use when the user asks "where am I", "what's the status", "what did I do last time", or as a quick check before running /sea-go.
 argument-hint: [empty]
 allowed-tools: Read, Glob, Bash
 ---
@@ -12,7 +12,7 @@ allowed-tools: Read, Glob, Bash
   See LICENSE in the repository root for the full license text.
 -->
 
-# /software-engineer-agent:status
+# /sea-status
 
 Report the current project state in a compact, scannable format. Announce: **"Using the status skill."**
 
@@ -28,7 +28,7 @@ Look for these files in order:
 4. `.sea/phases/phase-<current>/plan.md` — active phase plan (optional)
 
 If none exist, tell the user:
-> No project state found. Run `/software-engineer-agent:init` to bootstrap.
+> No project state found. Run `/sea-init` to bootstrap.
 
 Then stop.
 
@@ -75,7 +75,7 @@ Progress:     <done>/<total> phases complete  [<bar>]
 🔧 Working Tree
   <clean | N files modified, M staged>
 
-Next: /software-engineer-agent:go
+Next: /sea-go
 ```
 
 The progress bar is 10 chars: `██████░░░░` style. Round down.

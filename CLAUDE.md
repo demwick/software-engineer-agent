@@ -74,7 +74,7 @@ Then follow `TESTING.md`. Use `--debug-file /tmp/sea.log` when hooks misbehave a
 
 The plugin exists to drive **other** projects, not to drive its own development. When working on this repo:
 
-- **Do not** run `/software-engineer-agent:init` or `/software-engineer-agent:go` against this repo — they'd try to scaffold a Node app or plan phases inside the plugin, which is nonsense.
+- **Do not** run `/sea-init` or `/sea-go` against this repo — they'd try to scaffold a Node app or plan phases inside the plugin, which is nonsense.
 - **Do not** create `.sea/` inside this repo. It's gitignored in user projects; this repo's `.gitignore` also excludes it as a safety belt.
 - **Do** use Claude's built-in tools (Read, Edit, Bash, Grep) for direct changes to plugin source files.
 

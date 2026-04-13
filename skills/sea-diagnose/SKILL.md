@@ -1,5 +1,5 @@
 ---
-name: diagnose
+name: sea-diagnose
 description: Generate a project health report covering test coverage, error handling consistency, and basic security posture. Use when the user asks "how is this project doing", "what's broken", "audit this repo", or when you need a baseline before recommending next steps.
 argument-hint: [optional focus area — "tests", "security", "errors", or empty for all]
 allowed-tools: Read, Glob, Grep, Bash, Write
@@ -12,7 +12,7 @@ allowed-tools: Read, Glob, Grep, Bash, Write
   See LICENSE in the repository root for the full license text.
 -->
 
-# /software-engineer-agent:diagnose
+# /sea-diagnose
 
 Produce a prioritized health report for the current project. Announce: **"Using the diagnose skill to audit this project."**
 
@@ -89,14 +89,14 @@ Write the report to `.sea/diagnose.json`:
 }
 ```
 
-If `.sea/` doesn't exist yet, create it (but do not create `state.json` or `roadmap.md` — those belong to `/init`).
+If `.sea/` doesn't exist yet, create it (but do not create `state.json` or `roadmap.md` — those belong to `/sea-init`).
 
 ## Step 4: Suggest Next Step
 
 End the report with one of:
 
 - If there's no roadmap yet:
-  > Run `/software-engineer-agent:init` to convert these priorities into a roadmap.
+  > Run `/sea-init` to convert these priorities into a roadmap.
 - If there's already a roadmap:
   > These findings can be folded into the next phase. Review `.sea/roadmap.md` and decide.
 

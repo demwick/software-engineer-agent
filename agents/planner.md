@@ -1,6 +1,6 @@
 ---
 name: planner
-description: Produces task and phase plans. Turns research findings or user intent into atomic, sequenced, verifiable plans. Called by /init to produce the MVP roadmap and by /go to write the current phase's plan. Never writes code — only plan files.
+description: Produces task and phase plans. Turns research findings or user intent into atomic, sequenced, verifiable plans. Called by /sea-init to produce the MVP roadmap and by /sea-go to write the current phase's plan. Never writes code — only plan files.
 model: sonnet
 tools: Read, Glob, Grep, Bash, WebFetch
 memory: project
@@ -23,7 +23,7 @@ Every invocation, read your own `MEMORY.md` first. What phase sizes worked on th
 
 ## Two Modes
 
-### Mode A: Roadmap Planning (called by `/init`)
+### Mode A: Roadmap Planning (called by `/sea-init`)
 
 Break the MVP into phases. Each phase is bigger than one commit and smaller than a sprint.
 
@@ -50,7 +50,7 @@ Break the MVP into phases. Each phase is bigger than one commit and smaller than
 
 Split the roadmap into 3-7 phases. Each phase should be 2-5 days of solo-dev work.
 
-### Mode B: Phase Planning (called by `/go`)
+### Mode B: Phase Planning (called by `/sea-go`)
 
 Take a single phase from the roadmap and convert it into executable steps.
 

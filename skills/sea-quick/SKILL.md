@@ -1,5 +1,5 @@
 ---
-name: quick
+name: sea-quick
 description: Run a small, self-contained task without planning — straight to execute and commit. Use for typos, small fixes, single-file edits, dependency bumps, README touch-ups, rename operations. Not for anything that touches more than a couple of files or introduces new abstractions.
 argument-hint: <task description>
 disable-model-invocation: true
@@ -13,7 +13,7 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash
   See LICENSE in the repository root for the full license text.
 -->
 
-# /software-engineer-agent:quick
+# /sea-quick
 
 Run a small task directly — no planning, no research, no roadmap update. Announce at the start: **"Using the quick skill for a small task."**
 
@@ -25,7 +25,7 @@ If $ARGUMENTS is empty, ask the user what they want done and stop.
 
 Look at the task and judge: is this really small?
 
-**Reject the shortcut** and tell the user to use `/software-engineer-agent:go` instead if ANY of these apply:
+**Reject the shortcut** and tell the user to use `/sea-go` instead if ANY of these apply:
 - Touches more than 3 files
 - Introduces a new module, route, or abstraction
 - Changes the data model or database schema
@@ -69,6 +69,6 @@ Once done, write a one-sentence summary:
 ## Rules
 
 - **No plan files, no roadmap mutation.** Do not write to `.sea/roadmap.md` or create phase dirs — quick tasks don't affect the roadmap. The `.needs-verify` marker in Step 3 is the only exception, and only in already-initialized projects.
-- **One commit only.** If the task splits naturally into multiple commits, it wasn't a quick task — stop and suggest `/software-engineer-agent:go`.
+- **One commit only.** If the task splits naturally into multiple commits, it wasn't a quick task — stop and suggest `/sea-go`.
 - **No scope creep.** Executor stays strictly within the user's request. If it notices something else wrong, note it in the report and move on — don't fix it.
-- **No /go redirect loop.** If you rejected the task as too-big, don't silently promote to /go. The user runs that explicitly.
+- **No /sea-go redirect loop.** If you rejected the task as too-big, don't silently promote to /sea-go. The user runs that explicitly.

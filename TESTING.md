@@ -27,7 +27,7 @@ You should see six `software-engineer-agent:*` skills and four agents listed und
 
 If anything is missing, start with `claude --debug-file /tmp/software-engineer-agent.log --plugin-dir ...` and `tail -f /tmp/software-engineer-agent.log` in another terminal — the debug log shows every hook registration and every skill load.
 
-## 1. Empty project — `/init` Mode A (from-scratch)
+## 1. Empty project — `/sea-init` Mode A (from-scratch)
 
 ```bash
 mkdir /tmp/pwtest-a && cd /tmp/pwtest-a
@@ -37,7 +37,7 @@ claude --plugin-dir /Users/demirel/Projects/Plugins/software-engineer-agent
 In the session:
 
 ```
-/software-engineer-agent:init I want a CLI todo app in Go with SQLite
+/sea-init I want a CLI todo app in Go with SQLite
 ```
 
 **Expect:**
@@ -46,19 +46,19 @@ In the session:
 - `.sea/state.json` with `"mode": "from-scratch"`
 - `.sea/roadmap.md` with 3–7 phases
 - `.sea/` appended to `.gitignore`
-- Closing message: "Run /software-engineer-agent:go to start Phase 1"
+- Closing message: "Run /sea-go to start Phase 1"
 
 **Fail conditions:**
 - Over-scaffolding (auth, feature flags, analytics — anything not in the MVP)
 - No `.sea/` folder created
 - `disable-model-invocation: true` not respected (Claude auto-runs init — it shouldn't)
 
-## 2. `/status` on a populated project
+## 2. `/sea-status` on a populated project
 
 Still in `/tmp/pwtest-a`:
 
 ```
-/software-engineer-agent:status
+/sea-status
 ```
 
 **Expect:**
@@ -67,10 +67,10 @@ Still in `/tmp/pwtest-a`:
 - Sub-second response
 - No agent invocations (check the transcript — `status` is pure file-read)
 
-## 3. `/go` — first phase execution
+## 3. `/sea-go` — first phase execution
 
 ```
-/software-engineer-agent:go
+/sea-go
 ```
 
 **Expect:**
@@ -88,16 +88,16 @@ Still in `/tmp/pwtest-a`:
 
 ## 4. Auto-QA retry path
 
-Introduce a deliberate test failure before running `/go` on Phase 2:
+Introduce a deliberate test failure before running `/sea-go` on Phase 2:
 
 ```bash
-# In the project that's under /go, edit a test file to assert something false
+# In the project that's under /sea-go, edit a test file to assert something false
 ```
 
 Then:
 
 ```
-/software-engineer-agent:go
+/sea-go
 ```
 
 **Expect:**
@@ -114,7 +114,7 @@ Then:
 - Hook silently passes even though tests failed
 - `.needs-verify` is left behind after the hook gives up
 
-## 5. Existing project — `/init` Mode B (finish existing)
+## 5. Existing project — `/sea-init` Mode B (finish existing)
 
 ```bash
 cd /path/to/some/half-done/project
@@ -122,7 +122,7 @@ claude --plugin-dir /Users/demirel/Projects/Plugins/software-engineer-agent
 ```
 
 ```
-/software-engineer-agent:init
+/sea-init
 ```
 
 **Expect:**
@@ -133,10 +133,10 @@ claude --plugin-dir /Users/demirel/Projects/Plugins/software-engineer-agent
 - `.sea/` created with the state files
 - Never calls the executor — Mode B is planning-only
 
-## 6. `/diagnose` health audit
+## 6. `/sea-diagnose` health audit
 
 ```
-/software-engineer-agent:diagnose
+/sea-diagnose
 ```
 
 **Expect:**
@@ -146,12 +146,12 @@ claude --plugin-dir /Users/demirel/Projects/Plugins/software-engineer-agent
 - Every ❌ finding has a file:line reference
 - `.sea/diagnose.json` written
 
-Also try `/software-engineer-agent:diagnose security` — expect only the security section, no tests/errors sections.
+Also try `/sea-diagnose security` — expect only the security section, no tests/errors sections.
 
-## 7. `/quick` — happy path
+## 7. `/sea-quick` — happy path
 
 ```
-/software-engineer-agent:quick add a "License" badge to the README
+/sea-quick add a "License" badge to the README
 ```
 
 **Expect:**
@@ -160,33 +160,33 @@ Also try `/software-engineer-agent:diagnose security` — expect only the securi
 - Single-sentence completion summary
 - No `.sea/` mutations beyond the `.needs-verify` marker
 
-## 8. `/quick` — reject over-large task
+## 8. `/sea-quick` — reject over-large task
 
 ```
-/software-engineer-agent:quick refactor the entire auth layer to use OAuth2
+/sea-quick refactor the entire auth layer to use OAuth2
 ```
 
 **Expect:**
 - Skill rejects the task on the sanity check (touches many files, introduces new abstraction)
-- Tells the user to use `/software-engineer-agent:go`
+- Tells the user to use `/sea-go`
 - No executor invocation, no commits
 
-## 9. `/roadmap` CRUD
+## 9. `/sea-roadmap` CRUD
 
 ```
-/software-engineer-agent:roadmap
+/sea-roadmap
 ```
 
 Should just show the current roadmap.
 
 ```
-/software-engineer-agent:roadmap add "add E2E tests with Playwright"
+/sea-roadmap add "add E2E tests with Playwright"
 ```
 
 Should propose the new phase block and wait for confirmation. On confirm, appends to `roadmap.md` and bumps `total_phases` in `state.json`.
 
 ```
-/software-engineer-agent:roadmap remove 3
+/sea-roadmap remove 3
 ```
 
 Refuses if Phase 3 is `done`. Otherwise archives `.sea/phases/phase-3/` to `archived-<timestamp>-phase-3/` and renumbers subsequent phases.
@@ -206,7 +206,7 @@ At the first prompt:
 where am i?
 ```
 
-**Expect:** Claude answers using the session state (mode, active phase, last commit) WITHOUT calling `/software-engineer-agent:status`. That's the injection working — the hook put the state in context before Claude's first turn.
+**Expect:** Claude answers using the session state (mode, active phase, last commit) WITHOUT calling `/sea-status`. That's the injection working — the hook put the state in context before Claude's first turn.
 
 Claude should NOT volunteer this context unless you ask about software-engineer-agent state. Test by starting a normal unrelated conversation ("what is 2+2?") — Claude shouldn't mention the plugin.
 
@@ -220,7 +220,7 @@ claude --plugin-dir /Users/demirel/Projects/Plugins/software-engineer-agent
 
 (Superpowers is already installed user-wide in the test environment.)
 
-- `/software-engineer-agent:go` still works
+- `/sea-go` still works
 - `/superpowers:brainstorming` still works
 - Neither plugin's SessionStart hook clobbers the other (both run, both inject their own context)
 
@@ -232,7 +232,7 @@ Temporarily rename jq on the path (or run in a container without it):
 mv "$(which jq)" /tmp/jq-backup
 ```
 
-Start Claude Code, run `/software-engineer-agent:status`. The status command should still work (it doesn't need jq). Run `/software-engineer-agent:go` on a project — hooks should gracefully no-op instead of crashing (auto-qa and state-tracker have `command -v jq || exit 0` guards).
+Start Claude Code, run `/sea-status`. The status command should still work (it doesn't need jq). Run `/sea-go` on a project — hooks should gracefully no-op instead of crashing (auto-qa and state-tracker have `command -v jq || exit 0` guards).
 
 Restore jq:
 

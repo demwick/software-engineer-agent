@@ -1,5 +1,5 @@
 ---
-name: go
+name: sea-go
 description: Advance the project by one phase. Reads the roadmap, picks the next phase, plans it if needed, runs the executor, and lets the Stop hook auto-verify. The main command — users will run this most of the time.
 argument-hint: [optional phase number or "next"]
 disable-model-invocation: true
@@ -13,7 +13,7 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash
   See LICENSE in the repository root for the full license text.
 -->
 
-# /software-engineer-agent:go
+# /sea-go
 
 Advance the project by one phase. Announce at the start: **"Using the go skill to run the next phase."**
 
@@ -22,7 +22,7 @@ Argument: $ARGUMENTS (optional — a phase number, or empty = next pending phase
 ## Step 1: Preconditions
 
 1. Check `.sea/state.json` and `.sea/roadmap.md` exist.
-   - If missing → tell the user *"No project state found. Run /software-engineer-agent:init first."* and stop.
+   - If missing → tell the user *"No project state found. Run /sea-init first."* and stop.
 2. Read both files.
 
 ## Step 2: Pick the Phase
@@ -89,7 +89,7 @@ This creates the `.needs-verify` marker file. The `Stop` hook (`hooks/auto-qa`) 
 
 You do NOT invoke the verifier agent manually. The hook handles it. Trust the hook.
 
-If the project has no test runner, the hook auto-passes silently — fine for `/quick` work and very early MVPs.
+If the project has no test runner, the hook auto-passes silently — fine for `/sea-quick` work and very early MVPs.
 
 ## Step 7: Update State and Report
 
@@ -113,12 +113,12 @@ On verifier success:
    Notes: <2-3 sentences>
    ```
 4. Tell the user:
-   > Phase N complete. Next: Phase N+1 "<name>". Run `/software-engineer-agent:go` when ready.
+   > Phase N complete. Next: Phase N+1 "<name>". Run `/sea-go` when ready.
 
 ## Rules
 
 - **Do not skip the planner** for medium/complex phases, even if the phase "looks obvious". The plan is the contract the executor works against.
 - **Do not run verifier yourself** — the Stop hook does it. Calling it manually creates a double-verification loop.
 - **Respect blockers** — if executor reports `blocked`, do not try to unstick it; surface it to the user.
-- **One phase per /go invocation.** Do not chain phases.
-- **Never delete or rewrite commits** the executor made. If something's wrong, the next phase or a `/software-engineer-agent:quick` fixes it.
+- **One phase per /sea-go invocation.** Do not chain phases.
+- **Never delete or rewrite commits** the executor made. If something's wrong, the next phase or a `/sea-quick` fixes it.

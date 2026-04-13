@@ -1,5 +1,5 @@
 ---
-name: undo
+name: sea-undo
 description: Roll back the most recent phase or quick task by reverting its commits. Inspects the phase summary or recent git history, lists the commits, asks for confirmation, then runs `git revert` (non-destructive — creates new commits). Use when a phase went wrong and you want a clean rollback without losing history.
 argument-hint: [phase <N> | last]
 disable-model-invocation: true
@@ -13,12 +13,12 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash
   See LICENSE in the repository root for the full license text.
 -->
 
-# /software-engineer-agent:undo
+# /sea-undo
 
 Revert recent work safely. Announce: **"Using the undo skill to roll back recent commits."**
 
 Argument: $ARGUMENTS
-- empty or `last` → the most recently completed phase (or the last `/quick` commit if no phase summary is fresher)
+- empty or `last` → the most recently completed phase (or the last `/sea-quick` commit if no phase summary is fresher)
 - `phase <N>` → that specific phase
 
 ## Step 1: Identify the Target
@@ -87,9 +87,9 @@ If the target was a phase:
 2. Update `.sea/state.json`: set `current_phase` back to N, refresh `last_session` and `last_commit`.
 3. Move `.sea/phases/phase-N/summary.md` → `.sea/phases/phase-N/summary.md.reverted-<timestamp>` (don't delete — it's history).
 4. Delete `.sea/phases/phase-N/progress.json` if it exists.
-5. Leave `plan.md` in place — the user can re-run `/go` to retry the phase against the same plan.
+5. Leave `plan.md` in place — the user can re-run `/sea-go` to retry the phase against the same plan.
 
-If the target was a `/quick` commit, no `.sea/` mutations needed.
+If the target was a `/sea-quick` commit, no `.sea/` mutations needed.
 
 ## Step 6: Report
 
@@ -97,13 +97,13 @@ If the target was a `/quick` commit, no `.sea/` mutations needed.
 Undo complete.
 - Reverted: 4 commits (912a3b4..c4d5e6f)
 - New revert commits: 4 (HEAD: <sha>)
-- Phase 2 status: pending (re-run /software-engineer-agent:go to retry)
+- Phase 2 status: pending (re-run /sea-go to retry)
 ```
 
 ## Rules
 
 - **Never destructive.** `git revert` only — no `reset --hard`, no `push --force`, no branch deletion.
 - **One target per invocation.** Don't chain phases. If the user wants to undo Phases 3 and 2, they run undo twice.
-- **Done phases are revertable.** Unlike `/roadmap remove`, undo's whole job is rolling back done work.
+- **Done phases are revertable.** Unlike `/sea-roadmap remove`, undo's whole job is rolling back done work.
 - **Stop on conflict.** Don't try to be clever — bail out with `git revert --abort` and let the user handle it.
 - **Trust the summary.** If `summary.md` says commits `a..b`, that's the contract. Don't recompute via `git log` unless the summary is missing.

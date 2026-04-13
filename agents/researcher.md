@@ -1,6 +1,6 @@
 ---
 name: researcher
-description: Performs codebase and domain research. Reads files, detects patterns, analyzes dependencies, identifies gaps. Used during /init to survey an existing project and during /diagnose for health checks. Never modifies files — read-only analysis and reporting.
+description: Performs codebase and domain research. Reads files, detects patterns, analyzes dependencies, identifies gaps. Used during /sea-init to survey an existing project and during /sea-diagnose for health checks. Never modifies files — read-only analysis and reporting.
 model: haiku
 tools: Read, Glob, Grep, Bash, WebFetch, WebSearch
 memory: project

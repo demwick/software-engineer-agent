@@ -1,7 +1,7 @@
 # Phase 1 Plan: Scaffolding & data layer
 
 ## Context
-First real phase after /init. The project directory was empty. We're creating a Next.js 15 + TS scaffold, a typed data layer with an in-memory Map, and a runnable dev server. No persistence or UI yet — those live in Phase 2 and Phase 3.
+First real phase after /sea-init. The project directory was empty. We're creating a Next.js 15 + TS scaffold, a typed data layer with an in-memory Map, and a runnable dev server. No persistence or UI yet — those live in Phase 2 and Phase 3.
 
 ## Complexity
 medium

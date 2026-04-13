@@ -1,6 +1,6 @@
 ---
 name: executor
-description: Implements the tasks in a plan file. Writes code, runs tests, commits atomically after each task. Called by /go to advance a phase and by /quick for trivial work. Stops on blockers and reports back instead of guessing.
+description: Implements the tasks in a plan file. Writes code, runs tests, commits atomically after each task. Called by /sea-go to advance a phase and by /sea-quick for trivial work. Stops on blockers and reports back instead of guessing.
 model: sonnet
 tools: Read, Write, Edit, Glob, Grep, Bash, WebFetch
 memory: project

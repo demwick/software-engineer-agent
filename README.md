@@ -15,12 +15,12 @@
 
 | SE responsibility | Plugin surface |
 |-------------------|----------------|
-| **System design & architecture** | `/software-engineer-agent:init` — analyze the project, pick the tech stack, split the MVP into phases |
+| **System design & architecture** | `/sea-init` — analyze the project, pick the tech stack, split the MVP into phases |
 | **Planning** | `planner` subagent — produces atomic, verifiable task plans with explicit dependencies |
 | **Code development** | `executor` subagent — plan-driven implementation with atomic conventional commits |
 | **Testing & QA** | `verifier` subagent + Stop hook — auto-runs the project's test runner, auto-retries on failure |
 | **Code review** | Auto-QA loop — every turn the Stop hook checks plan alignment and test status, returns actionable failure reasons |
-| **Debugging & problem solving** | `/software-engineer-agent:diagnose` — codebase health audit (tests, error handling, security) with prioritized actions |
+| **Debugging & problem solving** | `/sea-diagnose` — codebase health audit (tests, error handling, security) with prioritized actions |
 | **Documentation** | Agent memory — each subagent curates its own `MEMORY.md` with patterns, decisions, known gotchas |
 | **Continuous improvement** | Cross-session memory — learnings carry from every session to the next, automatically |
 
@@ -61,12 +61,12 @@ All commands live under the `software-engineer-agent:` namespace. Type `/` in Cl
 
 | Command | What it does | Side-effects? | Model-invocable? |
 |---------|-------------|---------------|------------------|
-| `/software-engineer-agent:init [idea]` | Bootstrap a new or existing project | Yes — creates `.sea/`, scaffolds, writes roadmap | **No** — user-invoked only |
-| `/software-engineer-agent:go [phase]` | Advance one phase (plan → execute → auto-QA) | Yes — commits code, updates state | **No** |
-| `/software-engineer-agent:quick <task>` | Small task + single atomic commit | Yes — commits code | **No** |
-| `/software-engineer-agent:diagnose [focus]` | Health audit (tests / errors / security) | Writes `.sea/diagnose.json` | Yes |
-| `/software-engineer-agent:status` | Show current state and progress | Read-only | Yes |
-| `/software-engineer-agent:roadmap [verb]` | View or edit the phase list | Edits `.sea/roadmap.md` on verbs | Yes |
+| `/sea-init [idea]` | Bootstrap a new or existing project | Yes — creates `.sea/`, scaffolds, writes roadmap | **No** — user-invoked only |
+| `/sea-go [phase]` | Advance one phase (plan → execute → auto-QA) | Yes — commits code, updates state | **No** |
+| `/sea-quick <task>` | Small task + single atomic commit | Yes — commits code | **No** |
+| `/sea-diagnose [focus]` | Health audit (tests / errors / security) | Writes `.sea/diagnose.json` | Yes |
+| `/sea-status` | Show current state and progress | Read-only | Yes |
+| `/sea-roadmap [verb]` | View or edit the phase list | Edits `.sea/roadmap.md` on verbs | Yes |
 
 Commands with real side-effects (`init`, `go`, `quick`) are **user-invocable only** — Claude will not auto-trigger them. Read-only commands (`diagnose`, `status`, `roadmap`) can be called automatically when the context calls for them.
 
@@ -75,13 +75,13 @@ Commands with real side-effects (`init`, `go`, `quick`) are **user-invocable onl
 **Starting from nothing:**
 
 ```
-/software-engineer-agent:init I want to build a recipe sharing app with Next.js and SQLite
+/sea-init I want to build a recipe sharing app with Next.js and SQLite
 → a few clarifying questions, scaffold, then a 5-phase roadmap
 
-/software-engineer-agent:go
+/sea-go
 → Phase 1: data layer, shipped as 4 atomic commits, auto-QA runs tests, confirms pass
 
-/software-engineer-agent:go
+/sea-go
 → Phase 2: list UI, one commit breaks a test, Stop hook reports it,
    Claude auto-fixes and the hook re-verifies, passes, phase done
 ```
@@ -89,23 +89,23 @@ Commands with real side-effects (`init`, `go`, `quick`) are **user-invocable onl
 **Finishing an existing repo:**
 
 ```
-/software-engineer-agent:init
+/sea-init
 → analyzes codebase, reports gaps, asks if you want a completion roadmap
 
-/software-engineer-agent:diagnose security
+/sea-diagnose security
 → flags 3 security issues: open API routes, missing validation, .env in git
 
-/software-engineer-agent:roadmap add "close the 3 security gaps from diagnose"
+/sea-roadmap add "close the 3 security gaps from diagnose"
 → adds a new phase to the roadmap
 
-/software-engineer-agent:go
+/sea-go
 → runs the new phase, fixes the three issues, atomic commits, auto-QA passes
 ```
 
 **One-off task:**
 
 ```
-/software-engineer-agent:quick bump typescript to ^5.4
+/sea-quick bump typescript to ^5.4
 → executor runs, commits, auto-QA runs the test suite, done
 ```
 
@@ -129,7 +129,7 @@ Each agent has `memory: project` in its frontmatter — Claude Code's platform m
 **Hooks** (`hooks/hooks.json`) are the automation glue:
 
 - **`SessionStart`** — reads `.sea/state.json` and `.sea/roadmap.md`, injects a short state summary into Claude's context via `additionalContext`. Every session starts with project awareness.
-- **`Stop` (auto-QA)** — when `.sea/.needs-verify` is present (set by `/go` or `/quick` after the executor finishes), the hook auto-detects the test runner, runs it, and either lets Claude stop (pass) or returns a `block` decision with the failure details (fail). Claude auto-retries the fix up to 2 times before giving up.
+- **`Stop` (auto-QA)** — when `.sea/.needs-verify` is present (set by `/sea-go` or `/sea-quick` after the executor finishes), the hook auto-detects the test runner, runs it, and either lets Claude stop (pass) or returns a `block` decision with the failure details (fail). Claude auto-retries the fix up to 2 times before giving up.
 - **`PostToolUse` (state-tracker)** — refreshes `last_edit` in `state.json` every time Claude modifies a file in a project that's already initialized.
 
 **State** lives in two separate layers:
@@ -179,7 +179,7 @@ software-engineer-agent/
 - **Claude Code** ≥ 2.1 (plugin system, subagent `memory` field, and agent-based hooks are all from this era)
 - **bash** — ships with macOS and Linux; on Windows, Git for Windows bash
 - **jq** — used by hook scripts for safe JSON I/O. Install: `brew install jq` / `apt-get install jq`. If missing, hooks degrade to no-ops rather than crashing.
-- **git** — the executor commits atomically and `/software-engineer-agent:status` reads `git log`. Technically optional but you lose most of the value without it.
+- **git** — the executor commits atomically and `/sea-status` reads `git log`. Technically optional but you lose most of the value without it.
 
 No Node, Python, or Go runtime required for the plugin itself — only whatever your target project needs.
 
@@ -195,7 +195,7 @@ Why another plugin when Superpowers, GSD, and Aperant exist?
 - **GSD** has 20+ commands and a per-workspace config file. `software-engineer-agent` ships 6 commands, zero configuration, and leans on Haiku wherever it can to keep token costs honest.
 - **Aperant** is a desktop app with a Kanban UI and parallel workers. `software-engineer-agent` stays inside Claude Code — no separate UI, no platform install.
 
-The differentiator nothing else ships: **health audit → priority actions → roadmap → auto-QA loop**, all driven by a single `/go` command.
+The differentiator nothing else ships: **health audit → priority actions → roadmap → auto-QA loop**, all driven by a single `/sea-go` command.
 
 ## Contributing
 

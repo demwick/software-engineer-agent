@@ -50,11 +50,12 @@ Current state:
 - Last commit: ${LAST_COMMIT}
 
 Available commands (run explicitly — these are not auto-invoked):
-- /software-engineer-agent:go        — advance the next phase (plan → execute → auto-QA)
-- /software-engineer-agent:quick     — run a small task + commit (no planning)
-- /software-engineer-agent:status    — show detailed project status
-- /software-engineer-agent:roadmap   — view or edit the phase list
-- /software-engineer-agent:diagnose  — run a health audit (tests / errors / security)
+- /sea-go        — advance the next phase (plan → execute → auto-QA)
+- /sea-quick     — run a small task + commit (no planning)
+- /sea-status    — show detailed project status
+- /sea-roadmap   — view or edit the phase list
+- /sea-diagnose  — run a health audit (tests / errors / security)
+- /sea-undo      — revert the last phase or quick task via git revert
 
 Do not mention this block unless the user asks about software-engineer-agent state or runs one of its commands.
 </software-engineer-agent-session-state>

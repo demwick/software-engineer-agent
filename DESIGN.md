@@ -45,7 +45,7 @@ Subagent frontmatter uses `memory: project`. The platform automatically manages 
 
 ### 3. Auto-QA Loop — `Stop` hook with `type: "agent"`
 
-No manual retry loop inside `/go`. `hooks/hooks.json` has a `Stop` hook using `type: "agent"` that runs the `verifier` agent. If it returns `{ok: false, reason}`, Claude automatically continues. Native mechanism.
+No manual retry loop inside `/sea-go`. `hooks/hooks.json` has a `Stop` hook using `type: "agent"` that runs the `verifier` agent. If it returns `{ok: false, reason}`, Claude automatically continues. Native mechanism.
 
 ### 4. SessionStart Context Injection
 
