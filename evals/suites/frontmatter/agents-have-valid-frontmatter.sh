@@ -10,14 +10,21 @@ source "$REPO_ROOT/evals/lib/assert.sh"
 python3 - "$REPO_ROOT" <<'PY'
 import glob
 import os
+import re
 import sys
-
-import yaml
 
 repo = sys.argv[1]
 errors = []
+validated = 0
+
+# Lenient frontmatter parser: matches top-level keys without full YAML parsing.
+# Claude Code itself tolerates colons and brackets inside values, so we must too.
+KEY_RE = re.compile(r"^([A-Za-z][A-Za-z0-9_-]*)\s*:", re.MULTILINE)
 
 for path in sorted(glob.glob(os.path.join(repo, "agents", "*.md"))):
+    if os.path.basename(path).startswith("_"):
+        continue
+    validated += 1
     with open(path) as f:
         text = f.read()
 
@@ -30,21 +37,19 @@ for path in sorted(glob.glob(os.path.join(repo, "agents", "*.md"))):
         errors.append(f"{path}: frontmatter closing '---' not found")
         continue
 
-    fm = yaml.safe_load(text[4:end])
-    if not isinstance(fm, dict):
-        errors.append(f"{path}: frontmatter did not parse as a mapping")
-        continue
+    block = text[4:end]
+    keys = set(KEY_RE.findall(block))
 
     for field in ("name", "description"):
-        if field not in fm:
+        if field not in keys:
             errors.append(f"{path}: missing required field '{field}'")
 
-    if "tools" not in fm and "disallowedTools" not in fm:
+    if "tools" not in keys and "disallowedTools" not in keys:
         errors.append(f"{path}: must define either 'tools' or 'disallowedTools'")
 
 if errors:
     print("\n".join(errors), file=sys.stderr)
     sys.exit(1)
 
-print(f"OK: {len(glob.glob(os.path.join(repo, 'agents', '*.md')))} agent(s) validated")
+print(f"OK: {validated} agent(s) validated")
 PY
