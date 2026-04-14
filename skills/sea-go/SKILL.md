@@ -84,6 +84,17 @@ The `Stop` hook (`hooks/auto-qa`) will detect the marker, run the project's test
 
 For the full protocol — retry counter semantics, host-compat post-check, failure recovery format, test runner detection order — see `references/auto-qa-protocol.md`.
 
+## Step 6.5: Run 5-Axis Review (medium/complex only)
+
+After auto-QA passes on a **medium** or **complex** phase (trivial phases skip), launch the `reviewer` agent to inspect the phase's commits across correctness, readability, architecture, security, and performance. Do **not** invoke `/sea-review` as a skill — call the reviewer agent directly with the plan's commit range.
+
+Reviewer returns one of three verdicts:
+- **pass** → proceed to Step 7 as normal
+- **warn** → proceed to Step 7, but surface the top 3 important findings to the user in the phase completion report so they know what to clean up next
+- **block** → do NOT mark the phase done. Surface the critical findings, mark the phase `in-progress` in state.json, and tell the user: *"Review blocked the phase. Run `/sea-quick 'fix review finding #N'` or edit directly, then re-run `/sea-go` to continue."*
+
+The reviewer writes `.sea/phases/phase-<N>/review.md` regardless of verdict — it's the permanent review record.
+
 ## Step 7: Update State and Report
 
 On verifier success:
