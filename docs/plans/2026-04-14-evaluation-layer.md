@@ -1,6 +1,6 @@
 # Evaluation Layer Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> Execute this plan task by task. Steps use checkbox (`- [ ]`) syntax for tracking. Each task produces one atomic commit.
 
 **Goal:** Add an offline bash-based evaluation layer that catches regressions in the plugin's deterministic plumbing (hooks, state schema, test-runner detection, frontmatter) on every pull request.
 
@@ -8,7 +8,7 @@
 
 **Tech Stack:** `bash`, `jq`, `python3` (for JSON/YAML parsing only). No new runtime or dev dependencies.
 
-**Spec:** `docs/superpowers/specs/2026-04-14-evaluation-layer-design.md`
+**Spec:** `docs/specs/2026-04-14-evaluation-layer-design.md`
 
 ---
 
@@ -1215,7 +1215,7 @@ Old:
 New:
 ```markdown
 - `evals/` covers the deterministic plumbing (hooks, state schema, detect-test, frontmatter) but deliberately skips LLM behavior. A green CI means the plumbing is intact, not that the plugin's agent output is good — use `TESTING.md`'s live-test checklist for that.
-- Live end-to-end evals against a real `claude` CLI are post-V1 (see `docs/superpowers/specs/2026-04-14-evaluation-layer-design.md` → Follow-Up Work).
+- Live end-to-end evals against a real `claude` CLI are post-V1 (see `docs/specs/2026-04-14-evaluation-layer-design.md` → Follow-Up Work).
 ```
 
 - [ ] **Step 2: Add an eval reference in the "Build / test / validate" section**
