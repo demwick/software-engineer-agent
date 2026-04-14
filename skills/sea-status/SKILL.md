@@ -40,6 +40,13 @@ Parse `.sea/roadmap.md`. Count phases by status: `done`, `in-progress`, `pending
 
 If `.sea/diagnose.json` exists, read its `generated` timestamp and overall status.
 
+If `.sea/.last-verify.log` exists, read its mtime (file modification time) and the last ~10 lines. Parse them lightly to surface:
+- When the last test run happened (human-readable: "2m ago")
+- Pass/fail from the log tail (look for "passed", "failed", "FAIL", "Error", non-zero exit mention)
+- The test command if still recoverable from the log header
+
+Never re-run the tests yourself — status is read-only. Stale logs are better than slow status.
+
 ## Step 3: Git Context (Quick)
 
 Run `git log --oneline -3` and `git status --short` to get the last three commits and any uncommitted changes. Fail silently if not a git repo.
@@ -71,6 +78,9 @@ Progress:     <done>/<total> phases complete  [<bar>]
 
 🩺 Last Diagnose
   <date> — <overall status>, or "never run"
+
+🧪 Last Test Run
+  <e.g. "2m ago — pytest: 12 passed"> | "never run"
 
 🔧 Working Tree
   <clean | N files modified, M staged>
