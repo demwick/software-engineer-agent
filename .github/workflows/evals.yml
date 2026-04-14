@@ -1,0 +1,43 @@
+name: evals
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  evals:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+      - name: Install PyYAML
+        run: python3 -m pip install --user pyyaml
+      - name: Validate JSON manifests
+        run: |
+          python3 -c "import json; json.load(open('.claude-plugin/plugin.json'))"
+          python3 -c "import json; json.load(open('hooks/hooks.json'))"
+      - name: Lint bash scripts
+        run: |
+          set -e
+          files=(
+            hooks/session-start
+            hooks/auto-qa
+            hooks/state-tracker
+            hooks/run-hook.cmd
+            scripts/detect-test.sh
+            scripts/state-update.sh
+            scripts/check-host-compat.sh
+            scripts/archive-state.sh
+            evals/run.sh
+          )
+          for f in "${files[@]}"; do
+              [[ -f "$f" ]] && bash -n "$f"
+          done
+          for f in evals/lib/*.sh; do
+              [[ -f "$f" ]] && bash -n "$f"
+          done
+          while IFS= read -r -d '' f; do
+              bash -n "$f"
+          done < <(find evals/suites -type f -name '*.sh' -print0)
+      - name: Run evals
+        run: bash evals/run.sh
