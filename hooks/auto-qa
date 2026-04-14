@@ -58,6 +58,22 @@ TEST_LOG="${STATE_DIR}/.last-verify.log"
 mkdir -p "$STATE_DIR"
 
 if sh -c "$TEST_CMD" > "$TEST_LOG" 2>&1; then
+    # Tests passed. Run host-compat sanity check before letting Claude stop —
+    # pyproject.toml requires-python can mismatch host Python silently while
+    # pytest runs fine in a managed venv. Same for other packaging traps.
+    COMPAT_SCRIPT="${CLAUDE_PLUGIN_ROOT:-}/scripts/check-host-compat.sh"
+    if [ -n "${CLAUDE_PLUGIN_ROOT:-}" ] && [ -f "$COMPAT_SCRIPT" ]; then
+        COMPAT_OUT=$(bash "$COMPAT_SCRIPT" . 2>/dev/null) && COMPAT_EXIT=0 || COMPAT_EXIT=$?
+        if [ "$COMPAT_EXIT" = "10" ] && [ -n "$COMPAT_OUT" ]; then
+            # Append to log so /sea-status and humans can see it later.
+            printf '\n\n=== host-compat warning ===\n%s\n' "$COMPAT_OUT" >> "$TEST_LOG"
+            # Return a block so Claude fixes it now rather than shipping broken packaging.
+            rm -f "$MARKER"
+            jq -cn --arg msg "$COMPAT_OUT" \
+                '{decision: "block", reason: ("Tests passed but host-compat check failed: " + $msg + " Fix the packaging metadata and re-run tests. Do not skip — this blocks pip install on the user host.")}'
+            exit 0
+        fi
+    fi
     # Pass → clear marker, let Claude stop.
     rm -f "$MARKER"
     exit 0

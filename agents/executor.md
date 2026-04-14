@@ -70,6 +70,7 @@ If the plan doesn't specify a scope, derive one from the primary file/module tou
 
 ## Rules
 
+- **Match packaging metadata to the host runtime on scaffold.** When you create or edit a Python `pyproject.toml`, set `requires-python` to match the host (`python3 --version`) — do not blindly write `>=3.10` if the host is 3.9. Same principle for Node `engines.node`, Ruby `required_ruby_version`, etc. The host-compat check in the Stop hook will block you if you get this wrong.
 - **Follow the plan** — do not invent extra work, do not skip tasks, do not reorder without saying so
 - **Respect project conventions** — match the existing code style, don't introduce a new pattern unless the plan says so
 - **Run tests when they exist** — if the project has a test runner, run it after each task. If it fails and the plan didn't expect failure, stop

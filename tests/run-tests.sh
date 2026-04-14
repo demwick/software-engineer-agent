@@ -13,6 +13,10 @@ set -uo pipefail
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 export CLAUDE_PLUGIN_ROOT="$REPO_ROOT"
 
+# Host Python version, used for host-compat tests (empty if python3 missing).
+HOST_PY=$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")' 2>/dev/null || true)
+HOST_PY="${HOST_PY:-}"
+
 PASS=0
 FAIL=0
 FAILURES=()
@@ -165,6 +169,26 @@ assert_contains "give up reason mentions loop-protection" "$out" "loop-protectio
 
 cd "$REPO_ROOT"
 
+# auto-qa + host-compat integration: tests pass but packaging mismatch → block
+if [ -n "$HOST_PY" ]; then
+    t=$(mktmpdir); cd "$t"
+    mkdir -p .sea
+    echo 0 > .sea/.needs-verify
+    # Passing test script (exit 0) via package.json to trip detect-test → "npm test"
+    # but set PATH to a shim so npm won't run. Simpler: use Makefile + /usr/bin/true.
+    printf 'test:\n\t@true\n' > Makefile
+    cat > pyproject.toml <<'TOML'
+[project]
+name = "x"
+requires-python = ">=3.99"
+TOML
+    out=$(echo '{}' | bash "$REPO_ROOT/hooks/auto-qa")
+    assert_contains "passing tests + bad requires-python → block" "$out" '"decision":"block"'
+    assert_contains "block reason mentions host-compat" "$out" "host-compat"
+    assert_contains "log captures host-compat warning" "$(cat .sea/.last-verify.log 2>/dev/null)" "host-compat warning"
+    cd "$REPO_ROOT"
+fi
+
 # ---------- state-tracker ----------
 echo "state-tracker"
 
@@ -181,6 +205,38 @@ last_edit=$(jq -r '.last_edit // ""' .sea/state.json)
 
 mode=$(jq -r '.mode' .sea/state.json)
 assert "existing fields preserved" "$mode" "from-scratch"
+
+cd "$REPO_ROOT"
+
+# ---------- check-host-compat.sh ----------
+echo "check-host-compat"
+
+t=$(mktmpdir); cd "$t"
+out=$(bash "$REPO_ROOT/scripts/check-host-compat.sh" .; echo "EXIT:$?")
+assert_contains "no pyproject → exit 0 silent" "$out" "EXIT:0"
+
+if [ -n "$HOST_PY" ]; then
+    # Matching: requires-python = ">=<host>" → exit 0
+    cat > pyproject.toml <<TOML
+[project]
+name = "x"
+requires-python = ">=${HOST_PY}"
+TOML
+    out=$(bash "$REPO_ROOT/scripts/check-host-compat.sh" .; echo "EXIT:$?")
+    assert_contains "matching requires-python → exit 0" "$out" "EXIT:0"
+
+    # Mismatching: impossibly high minimum → exit 10 with message.
+    cat > pyproject.toml <<'TOML'
+[project]
+name = "x"
+requires-python = ">=3.99"
+TOML
+    out=$(bash "$REPO_ROOT/scripts/check-host-compat.sh" .; echo "EXIT:$?")
+    assert_contains "mismatching requires-python → exit 10" "$out" "EXIT:10"
+    assert_contains "mismatch reason mentions python3" "$out" "host python3"
+else
+    echo "  skip host-compat (no python3)"
+fi
 
 cd "$REPO_ROOT"
 
