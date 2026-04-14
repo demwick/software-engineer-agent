@@ -184,6 +184,49 @@ assert "existing fields preserved" "$mode" "from-scratch"
 
 cd "$REPO_ROOT"
 
+# ---------- state-update.sh ----------
+echo "state-update"
+
+t=$(mktmpdir); mkdir -p "$t/.sea"
+cat > "$t/.sea/state.json" <<'JSON'
+{"schema_version":1,"mode":"from-scratch","created":"2026-04-14T00:00:00Z","current_phase":1,"total_phases":5,"last_session":"2026-04-14T00:00:00Z","last_commit":null}
+JSON
+
+# Happy path: merge several fields, types preserved.
+bash "$REPO_ROOT/scripts/state-update.sh" --project-dir "$t" current_phase=3 completed=true last_commit=a1b2c3d >/dev/null
+phase=$(jq -r '.current_phase' "$t/.sea/state.json")
+assert "merged integer stays integer" "$phase" "3"
+done_flag=$(jq -r '.completed' "$t/.sea/state.json")
+assert "merged boolean stays boolean" "$done_flag" "true"
+sha=$(jq -r '.last_commit' "$t/.sea/state.json")
+assert "merged string stays string" "$sha" "a1b2c3d"
+mode=$(jq -r '.mode' "$t/.sea/state.json")
+assert "required field mode preserved" "$mode" "from-scratch"
+sv=$(jq -r '.schema_version' "$t/.sea/state.json")
+assert "schema_version preserved" "$sv" "1"
+
+# last_session auto-refresh when not passed.
+ls1=$(jq -r '.last_session' "$t/.sea/state.json")
+[ "$ls1" != "2026-04-14T00:00:00Z" ] && { PASS=$((PASS+1)); echo "  ok   last_session auto-refreshed"; } \
+                                      || { FAIL=$((FAIL+1)); FAILURES+=("last_session refresh"); echo "  FAIL last_session refresh"; }
+
+# Schema validation: removing schema_version manually then trying to update should fail.
+jq 'del(.schema_version)' "$t/.sea/state.json" > "$t/.sea/state.json.tmp" && mv "$t/.sea/state.json.tmp" "$t/.sea/state.json"
+out=$(bash "$REPO_ROOT/scripts/state-update.sh" --project-dir "$t" foo=bar 2>&1; echo "EXIT:$?")
+assert_contains "schema validation rejects missing required" "$out" "EXIT:4"
+assert_contains "missing field name in error" "$out" "schema_version"
+
+# Missing state.json → exit 1
+t2=$(mktmpdir)
+out=$(bash "$REPO_ROOT/scripts/state-update.sh" --project-dir "$t2" foo=bar 2>&1; echo "EXIT:$?")
+assert_contains "missing state file → exit 1" "$out" "EXIT:1"
+
+# No args → exit 2
+out=$(bash "$REPO_ROOT/scripts/state-update.sh" --project-dir "$t" 2>&1; echo "EXIT:$?")
+assert_contains "no args → exit 2" "$out" "EXIT:2"
+
+cd "$REPO_ROOT"
+
 # ---------- summary ----------
 echo
 echo "Results: $PASS passed, $FAIL failed"

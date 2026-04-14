@@ -95,14 +95,13 @@ If the project has no test runner, the hook auto-passes silently — fine for `/
 
 On verifier success:
 
-1. Update `.sea/state.json`:
-   ```json
-   {
-     "current_phase": <N+1 or same if last>,
-     "last_session": "<ISO now>",
-     "last_commit": "<short-sha of HEAD>"
-   }
+1. Update `.sea/state.json` via the `state-update.sh` helper — **never write state.json directly with Write/Edit**. The helper jq-merges, preserves required fields (`schema_version`, `mode`, `created`), auto-refreshes `last_session`, and validates the result:
+   ```bash
+   bash "${CLAUDE_PLUGIN_ROOT}/scripts/state-update.sh" \
+       current_phase=<N+1> \
+       last_commit=<short-sha-of-HEAD>
    ```
+   Pass any additional fields as extra `KEY=VALUE` args. JSON-parseable values (numbers, booleans, arrays) keep their type; everything else becomes a string.
 2. Update `.sea/roadmap.md`: mark Phase N as `done`.
 3. Write a short summary to `.sea/phases/phase-N/summary.md`:
    ```markdown

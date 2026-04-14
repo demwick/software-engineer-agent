@@ -85,6 +85,7 @@ The plugin exists to drive **other** projects, not to drive its own development.
 - Adding a comment header to a JSON file will silently break plugin loading. Skip JSON files when adding license headers.
 - Frontmatter in agents and skills must start on line 1 — no BOM, no header comment before `---`. HTML comments go **after** the closing `---`.
 - Every write to `state.json` from a hook script must use `jq` (or bail) — manual `sed`/`awk` on JSON is fragile and will eventually corrupt the file.
+- Skills must update `state.json` **only** through `scripts/state-update.sh`. Raw `Write`/`Edit` on an existing state.json risks dropping `schema_version`, `mode`, or other required fields (this actually happened during V1 testing). The helper jq-merges, preserves required fields, auto-refreshes `last_session`, and validates before writing. The only exception is the initial `Write` from `sea-init` when the file doesn't exist yet.
 
 ## Current known gaps
 

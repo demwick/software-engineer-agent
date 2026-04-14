@@ -85,6 +85,11 @@ Create `.sea/` at the project root with:
   ```
 
   Always include `schema_version`. Future plugin versions check this field on read; if a state file is missing it or has an older value, they may run a migration before proceeding.
+
+  The **initial** state.json write happens via `Write` (file doesn't exist yet). All **subsequent** mutations from any skill must go through `scripts/state-update.sh` so required fields are never dropped:
+  ```bash
+  bash "${CLAUDE_PLUGIN_ROOT}/scripts/state-update.sh" KEY=VALUE [KEY=VALUE ...]
+  ```
 - `.sea/phases/` — empty dir for future phase plans
 
 Also add `.sea/` to `.gitignore` (create the file if missing, append if it's there).

@@ -22,14 +22,14 @@ jobs:
 
       - name: Bash syntax check
         run: |
-          for f in hooks/session-start hooks/auto-qa hooks/state-tracker hooks/run-hook.cmd scripts/detect-test.sh; do
+          for f in hooks/session-start hooks/auto-qa hooks/state-tracker hooks/run-hook.cmd scripts/detect-test.sh scripts/state-update.sh tests/run-tests.sh; do
             bash -n "$f"
             echo "ok $f"
           done
 
       - name: Shellcheck
         run: |
-          shellcheck -s bash hooks/session-start hooks/auto-qa hooks/state-tracker scripts/detect-test.sh || true
+          shellcheck -s bash hooks/session-start hooks/auto-qa hooks/state-tracker scripts/detect-test.sh scripts/state-update.sh || true
 
       - name: Frontmatter presence
         run: |
