@@ -69,7 +69,7 @@ Launch the `executor` agent. Pass it:
 
 Wait for executor to finish. It returns `STATUS: done` or `STATUS: blocked`.
 
-- **blocked** → surface executor's report to the user verbatim, mark the phase `in-progress` in state.json, stop.
+- **blocked** → surface executor's report to the user verbatim, mark the phase `in-progress` in state.json, then suggest `/sea-debug` for structured triage: *"Executor blocked on task N. Run `/sea-debug` to run a 5-phase triage and identify the root cause before retrying."* Stop.
 - **done** → arm auto-QA (next step).
 
 ## Step 6: Arm the Auto-QA Hook

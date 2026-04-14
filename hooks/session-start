@@ -58,6 +58,7 @@ Available commands (run explicitly — these are not auto-invoked):
 - /sea-undo      — revert the last phase or quick task via git revert
 - /sea-milestone — add a new milestone (fresh phase chunk) without archiving history
 - /sea-review    — run a 5-axis code review (correctness/readability/architecture/security/perf)
+- /sea-debug     — systematic triage: reproduce → hypothesize → test → root cause
 
 Do not mention this block unless the user asks about software-engineer-agent state or runs one of its commands.
 </software-engineer-agent-session-state>
