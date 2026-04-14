@@ -125,3 +125,24 @@ On verifier success:
 - **Respect blockers** — if executor reports `blocked`, do not try to unstick it; surface it to the user.
 - **One phase per /sea-go invocation.** Do not chain phases.
 - **Never delete or rewrite commits** the executor made. If something's wrong, the next phase or a `/sea-quick` fixes it.
+
+## When NOT to Use
+
+- No `.sea/` exists yet → use `/sea-init` first
+- All phases are `done` → suggest `/sea-milestone` for a new direction
+- The user wants a single small fix that doesn't fit a phase → use `/sea-quick`
+- A phase is currently blocked due to a real failure → use `/sea-debug` to triage first
+- The user only wants to inspect state without advancing → use `/sea-status`
+- The user wants to add or remove phases without running them → use `/sea-roadmap`
+
+## Related
+
+- `/sea-status` — check progress before running this command
+- `/sea-init` — creates the roadmap this command consumes
+- `/sea-debug` — hand-off when this command's executor returns blocked
+- `/sea-review` — auto-runs after auto-QA on medium/complex phases (Step 6.5)
+- `/sea-quick` — for small touchups discovered mid-phase
+- `/sea-undo` — when a completed phase needs rolling back
+- `/sea-ship` — once all phases complete, run before merging
+- **External**: `agent-skills:incremental-implementation` + `agent-skills:test-driven-development` — pair well with the executor when installed
+- **External**: `superpowers:executing-plans` — alternative executor for very long phases

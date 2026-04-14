@@ -101,3 +101,20 @@ Like `/sea-review`, this skill separates diagnosis from remediation. The debugge
 - **Session directories are permanent.** Never delete old `session-*/` dirs — they're history. Old sessions help diagnose similar failures later.
 - **Escalate on deep repo damage.** If the debugger reports the working tree is corrupted (missing files, broken git state), stop and tell the user to check before running any automated fix.
 - **Respect the _common.md stop-the-line rule.** Do not keep adding features or running other skills while a triage is in progress — fix the bug first, then resume.
+
+## When NOT to Use
+
+- The user wants a project-wide quality audit (not a specific failure) → `/sea-diagnose`
+- The user wants commit-level review (no failure, just quality check) → `/sea-review`
+- The user has already identified the fix and just wants to apply it → `/sea-quick`
+- The failure is a known intentional behavior (gated feature flag, expected error) → confirm with user before triaging
+- The failure is in the plugin itself (not the user project) → check `tests/run-tests.sh`, this skill is for user-project failures
+
+## Related
+
+- `/sea-go` — the most common upstream caller (executor `STATUS: blocked` triggers /sea-debug suggestion)
+- `/sea-quick` — the natural downstream when debug recommends a Prove-It fix
+- `/sea-status` — see "Last Test Run" line that often signals a triage is needed
+- `/sea-undo` — when the right answer is "revert the bad commit" rather than fix forward
+- **External**: `agent-skills:debugging-and-error-recovery` — same methodology, auto-triggers when installed
+- **External**: `superpowers:systematic-debugging` — alternative deeper triage when installed

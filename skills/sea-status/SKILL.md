@@ -97,3 +97,17 @@ The progress bar is 10 chars: `██████░░░░` style. Round down
 - **Compact.** This skill should run in under a second and return a single screen of output. No long prose.
 - **No agent calls.** Everything here is file reads and git commands; launching researcher/planner/etc would be wasteful.
 - **Human-readable timestamps.** "3 hours ago" beats "2026-04-14T05:21:00Z" for the user-facing line. The raw ISO value stays in state.json.
+
+## When NOT to Use
+
+- The user wants to *modify* the roadmap → use `/sea-roadmap`
+- The user wants a deep audit (not just the last result) → use `/sea-diagnose`
+- The user wants commit-level review → use `/sea-review`
+- No `.sea/` exists → tell the user to run `/sea-init` instead of trying to render empty state
+
+## Related
+
+- `/sea-go` — natural next action after status confirms there's a pending phase
+- `/sea-roadmap` — when the user wants more than the compact phase list status shows
+- `/sea-diagnose` — refresh the audit if the "Last Diagnose" line is stale or "never run"
+- `/sea-debug` — if the "Last Test Run" line shows a recent failure

@@ -95,3 +95,21 @@ This separation keeps review audits distinct from execution.
 - **Do not update state.json.** Review is read-only with respect to runtime state.
 - **Phase number optional.** For ad-hoc `range` reviews, write to `.sea/reviews/ad-hoc-<timestamp>.md` and skip state updates.
 - **Respect the verdict.** Never override block to pass without explicit user approval. If the user overrides, note it in the report footer with a timestamp.
+
+## When NOT to Use
+
+- The user wants a project-wide health audit (not commit-level review) → `/sea-diagnose`
+- The user wants pre-merge full quality gate (build, lint, secrets) → `/sea-ship`
+- The phase is still in progress (not yet committed) → finish `/sea-go` first
+- A test is failing right now → fix the test first via `/sea-debug`, review later
+- The commit range is empty → nothing to review
+
+## Related
+
+- `/sea-go` — auto-runs this skill in Step 6.5 on medium/complex phases (you only call it manually for ad-hoc ranges or trivial-phase reviews)
+- `/sea-quick` — natural next step to fix surfaced findings
+- `/sea-debug` — when a finding is symptom of a deeper bug
+- `/sea-ship` — broader pre-merge gate that complements (not replaces) review
+- `/sea-diagnose` — project-wide audit; reviews focus on the phase, diagnose on the project
+- **External**: `agent-skills:code-review-and-quality` — auto-triggers when this skill runs and the plugin is installed
+- **External**: `agent-skills:security-and-hardening` — pairs with the security axis when installed

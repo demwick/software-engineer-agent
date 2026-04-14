@@ -107,3 +107,18 @@ Undo complete.
 - **Done phases are revertable.** Unlike `/sea-roadmap remove`, undo's whole job is rolling back done work.
 - **Stop on conflict.** Don't try to be clever — bail out with `git revert --abort` and let the user handle it.
 - **Trust the summary.** If `summary.md` says commits `a..b`, that's the contract. Don't recompute via `git log` unless the summary is missing.
+
+## When NOT to Use
+
+- The user wants to remove a phase from the roadmap **without** touching commits → use `/sea-roadmap remove <N>`
+- The user wants to fix a small issue in an otherwise-good phase → use `/sea-quick` instead of reverting the whole phase
+- Working tree is dirty → tell the user to stash/commit first (this skill refuses)
+- The commits to revert have already been pushed and merged upstream → require explicit confirmation, this is now a public-history operation
+- The user wants to *redo* a phase from scratch → undo + then `/sea-go` (two separate steps)
+
+## Related
+
+- `/sea-status` — confirm what the "last" target actually is before running undo
+- `/sea-roadmap` — runs after undo to see the phase back in `pending` state
+- `/sea-go` — re-run a reverted phase against the same plan
+- `/sea-debug` — when undo is the wrong fix and you actually need to root-cause first

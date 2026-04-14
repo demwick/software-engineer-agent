@@ -103,3 +103,19 @@ Run /sea-go when ready to start Phase <LAST+1>.
 - **Do not auto-commit.** Roadmap edits are runtime state, not project code.
 - **One milestone per invocation.** If the user describes two directions, ask which one to tackle first and defer the other to a second `/sea-milestone` call.
 - **Respect scope discipline.** If the described work doesn't fit a milestone (e.g. it's a single fix), suggest `/sea-quick` and stop. If it's bigger than ~5 phases, suggest splitting and stop.
+
+## When NOT to Use
+
+- No `.sea/` exists at all → `/sea-init` first
+- The user described a single small fix → `/sea-quick "<task>"`
+- The user wants only one extra phase → `/sea-roadmap add "<description>"` is lighter
+- The user wants to fundamentally restart with a different stack → `/sea-init` (which archives the old state)
+- The current milestone has unfinished phases → finish them with `/sea-go` first, or explicitly confirm parallel milestones
+
+## Related
+
+- `/sea-init` — the right tool when archiving + fresh start is desired (this skill's opposite)
+- `/sea-roadmap add` — lighter alternative for adding a single phase without invoking planner
+- `/sea-go` — natural next step to start the first phase of the new milestone
+- `/sea-status` — see the new milestone reflected in the progress display
+- `/sea-ship` — pre-merge gate before declaring the previous milestone done and starting this one

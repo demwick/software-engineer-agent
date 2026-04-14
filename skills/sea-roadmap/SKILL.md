@@ -100,3 +100,18 @@ Just change the `### Phase N: <name>` header line. No confirmation needed — it
 - **Archive, don't delete.** If you have to discard a phase directory, move it to `archived-<timestamp>-…/`.
 - **Keep `state.json` consistent.** Any operation that changes phase numbers must update `total_phases` and possibly `current_phase`.
 - **Do not launch agents.** Roadmap edits are mechanical — no planner, no executor. If the user wants planner help to redesign phases, they should use `/sea-init` with the archive flow.
+
+## When NOT to Use
+
+- The user wants to **add a multi-phase chunk** (a new milestone) → use `/sea-milestone` (calls planner properly)
+- No `.sea/roadmap.md` exists → `/sea-init` first
+- The user wants to *execute* a phase, not edit the list → `/sea-go`
+- The user wants to remove a phase that's `done` — this skill refuses, suggest `/sea-undo` for the commits then this skill for the entry
+
+## Related
+
+- `/sea-init` — bootstraps the roadmap this skill edits
+- `/sea-milestone` — preferred over `roadmap add` for any work that's a coherent multi-phase milestone
+- `/sea-go` — runs the phases this skill manages
+- `/sea-status` — shows the same roadmap in a more summary format
+- `/sea-undo` — when "remove this phase" really means "undo what it did"

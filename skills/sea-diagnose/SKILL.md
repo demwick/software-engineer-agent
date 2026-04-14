@@ -116,3 +116,20 @@ The routing is mechanical: count priority_actions, count affected files, pick. D
 - **Evidence required.** Every ❌ finding must have a file:line reference. If you can't cite it, downgrade to ⚠️.
 - **Scope discipline.** Do not audit code style, performance, architecture, or tooling — that's outside the three focus areas.
 - **Respect the focus argument.** If the user asked for just `security`, do not slip in test-coverage findings.
+
+## When NOT to Use
+
+- The user wants a **5-axis** code review of recent commits (architecture, readability, performance) → use `/sea-review` instead — diagnose only covers tests/errors/security
+- A specific bug is failing now → use `/sea-debug` (this is triage, not audit)
+- The user wants pre-merge gate checks (build, lint, typecheck) → use `/sea-ship`
+- The project has zero source files yet → `/sea-init` first
+
+## Related
+
+- `/sea-init` — Mode B uses researcher findings as roadmap seed (similar to diagnose)
+- `/sea-quick` — automatic next step when 1–3 small priority actions are found
+- `/sea-roadmap add` — automatic next step when 4+ priority actions need their own phase
+- `/sea-review` — complementary; reviews the *code* against 5 axes, this skill audits the *project* against 3 dimensions
+- `/sea-status` — shows the last diagnose timestamp in its header
+- **External**: `agent-skills:security-and-hardening` — auto-triggers when this skill's security findings are surfaced
+- **External**: `agent-skills:performance-optimization` — fills the perf dimension diagnose intentionally skips

@@ -184,3 +184,22 @@ It produces evidence that the user can show a reviewer, a CI pipeline, or themse
 - **Sequential gate execution.** Parallelizing would save time but lose the fast-fail order — test failures should abort before we spend 30s on a build.
 - **Respect the dry mode.** `dry` skips slow gates (build, audit). Useful for quick smoke checks mid-development, but NOT valid for actual ship decisions.
 - **Secrets scan is shallow.** Document in the report footer: *"Secrets scan checks committed diff of last 5 commits only — use a dedicated tool like gitleaks or trufflehog for full history scans."*
+
+## When NOT to Use
+
+- The user wants commit-level review (5 axes) → `/sea-review`
+- The user wants project-wide audit (test/error/security baseline) → `/sea-diagnose`
+- A failing test exists → `/sea-debug` first; ship will block on it anyway
+- Phases are still in progress → `/sea-go` until done, then ship
+- The user wants the plugin to actually deploy (push, tag, CI trigger) → ship doesn't do that, you still run the deploy command yourself
+
+## Related
+
+- `/sea-go` — finish all phases before running ship
+- `/sea-review` — do a code-level review before the gate; ship complements it but does not replace it
+- `/sea-diagnose` — earlier-stage health audit; ship is the final gate
+- `/sea-debug` — when ship blocks on a failing gate
+- `/sea-quick` — to fix small ship-blocking issues (e.g. a typecheck error)
+- `/sea-undo` — rollback option if ship reveals a bad recent commit
+- **External**: `agent-skills:shipping-and-launch` — broader pre-launch playbook including a11y, observability, rollout strategy
+- **External**: `agent-skills:ci-cd-and-automation` — for actually wiring deploys around the gate this skill produces

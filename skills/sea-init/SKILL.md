@@ -107,3 +107,21 @@ Also add `.sea/` to `.gitignore` (create the file if missing, append if it's the
 - **Do not auto-commit during init.** Creating state files should not produce a git commit. The first commit belongs to the first real phase.
 - **Scaffold only what MVP needs.** No feature-flag frameworks, no analytics SDKs, no optional middleware.
 - **Do not call `executor` here.** Init is planning-only. Execution happens in `/sea-go`.
+
+## When NOT to Use
+
+- `.sea/` already exists and the user wants to extend the project → use `/sea-milestone <description>` instead (preserves history)
+- `.sea/` already exists and the user just wants to see status → use `/sea-status`
+- The user only wants a single small fix → use `/sea-quick "<task>"`
+- The user wants to bootstrap CLAUDE.md (Claude Code's built-in metadata) → that's a different built-in `/init`, not this one
+- The user only wants a code review on existing commits → use `/sea-review`
+
+## Related
+
+- `/sea-status` — confirm there's no existing project before running init
+- `/sea-go` — natural next step after init produces the roadmap (run Phase 1)
+- `/sea-milestone` — the right tool when init shouldn't archive existing state
+- `/sea-diagnose` — pairs with init Mode B (existing project) to seed the roadmap with prioritized findings
+- `/sea-roadmap` — manual editing of the roadmap init produces
+- **External**: `superpowers:writing-plans` — for an extra-deep planning session on complex MVPs (planner can suggest it)
+- **External**: `agent-skills:idea-refine` — for fuzzy ideas that need divergent/convergent thinking before scaffolding
