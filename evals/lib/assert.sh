@@ -15,3 +15,36 @@ assert_eq() {
         exit 1
     fi
 }
+
+assert_file_exists() {
+    local path="$1" message="${2:-file missing: $1}"
+    [[ -e "$path" ]] || _fail "$message"
+}
+
+assert_file_contains() {
+    local path="$1" regex="$2" message="${3:-file did not match: $1 =~ $2}"
+    assert_file_exists "$path" "file missing: $path"
+    grep -qE "$regex" "$path" || _fail "$message"
+}
+
+assert_jq() {
+    local json="$1" path_expr="$2" predicate="$3" message="${4:-jq assertion failed}"
+    local result
+    result="$(printf '%s' "$json" | jq -r "($path_expr) $predicate" 2>/dev/null || true)"
+    if [[ "$result" != "true" ]]; then
+        printf 'FAIL: %s\n  path:      %s\n  predicate: %s\n  json:      %s\n' \
+            "$message" "$path_expr" "$predicate" "$json" >&2
+        exit 1
+    fi
+}
+
+assert_exit_code() {
+    local expected="$1"; shift
+    local actual=0
+    "$@" >/dev/null 2>&1 || actual=$?
+    if [[ "$expected" != "$actual" ]]; then
+        printf 'FAIL: expected exit %s, got %s from: %s\n' \
+            "$expected" "$actual" "$*" >&2
+        exit 1
+    fi
+}
