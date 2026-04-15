@@ -62,11 +62,13 @@ This is the permanent record of what was decided at each phase and why.
 - Regression surprises: none. Both `bash evals/run.sh` and `bash tests/run-tests.sh` stayed green throughout.
 - Atomic commit count: 13 (5 skill deletions + 2 sea-go edits + 1 retained-skills cleanup + 1 agents cleanup + 1 hooks + 1 tests + 1 scripts + 1 docs+journal)
 
-## Phase 4 — delete cut agents (YYYY-MM-DD)
+## Phase 4 — delete cut agents (2026-04-15)
 
-- PR: #<number>
-- Agents deleted: <list>
-- Remaining callers found (before deletion): <list, or "none">
+- PR: merged into `main` via `--no-ff` from `refactor/delete-cut-agents` (single-session mode)
+- Agents deleted: `agents/reviewer.md`, `agents/debugger.md`
+- Remaining callers found (before deletion): none. Audit grep (`agents/reviewer`, `name: reviewer`, `the reviewer agent`; same for debugger) returned only the agent files themselves plus docs/specs/ refactor spec+journal and docs/STATE.md's Per-file detail section — none of which count as callers.
+- README/CLAUDE.md updates: agent table trimmed to four rows + a composition note; directory layout skills listing; Migration from v1.x expanded to note the Phase 4 file-level deletion; CLAUDE.md repo layout bullets flipped from six subagents to four.
+- Atomic commit count: 3 (2 deletions + 1 docs)
 
 ## Phase 5 — roadmap absorbs milestone (YYYY-MM-DD)
 

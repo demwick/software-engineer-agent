@@ -126,7 +126,8 @@ maps each deleted command to its replacement:
 | `/sea-undo` | `git revert <commit>` — no wrapper, just use git directly |
 
 The `reviewer` and `debugger` agents are also removed in v2.0.0 —
-they had no callers after the commands were deleted.
+they had no callers after the commands were deleted (Phase 4 of
+the refactor deletes the files themselves).
 
 State schema: if you have a v1.x project with a `.sea/` directory,
 v2.0.0 will migrate it automatically on first `/sea-go` or `/sea-init`
@@ -149,10 +150,10 @@ The plugin is a thin layer over Claude Code's native primitives. No external run
 | `planner` | Sonnet | Read, Glob, Grep, Bash, WebFetch (no Write) | project | `/sea-init`, `/sea-go` |
 | `executor` | Sonnet | Read, Write, Edit, Glob, Grep, Bash, WebFetch | project | `/sea-go`, `/sea-quick` |
 | `verifier` | Haiku | Read, Glob, Grep, Bash | project | `Stop` hook (auto-qa), `/sea-go` |
-| `reviewer` | Sonnet | Read, Glob, Grep, Bash | project | *(no callers after v2.0.0 scope cut — scheduled for removal in Phase 4)* |
-| `debugger` | Haiku | Read, Glob, Grep, Bash | project | *(no callers after v2.0.0 scope cut — scheduled for removal in Phase 4)* |
 
-All six agents share `agents/_common.md`, an operating constitution (surface assumptions, manage confusion, push back with evidence, enforce simplicity, stop-the-line, commit discipline) that overrides any task-specific instruction it conflicts with.
+v2.0.0 removed two v1.0.0 agents — `reviewer` (Sonnet) and `debugger` (Haiku) — along with the commands that called them. Code review and systematic debugging are now delegated to composition with `addyosmani/agent-skills` and `obra/superpowers`. See [Migration from v1.x](#migration-from-v1x).
+
+All four agents share `agents/_common.md`, an operating constitution (surface assumptions, manage confusion, push back with evidence, enforce simplicity, stop-the-line, commit discipline) that overrides any task-specific instruction it conflicts with.
 
 Each agent has `memory: project` in its frontmatter — Claude Code's platform manages a per-agent `MEMORY.md` at `.claude/agent-memory/<agent>/`, auto-loaded every invocation. No hand-rolled session persistence. No custom memory-manager agent. No shell scripts for memory.
 
@@ -184,9 +185,7 @@ software-engineer-agent/
 │   ├── researcher.md              # Haiku, read-only, memory: project
 │   ├── planner.md                 # Sonnet, read-only, memory: project
 │   ├── executor.md                # Sonnet, full tools, memory: project
-│   ├── verifier.md                # Haiku, read-only + Bash, memory: project
-│   ├── reviewer.md                # Sonnet, read-only, memory: project
-│   └── debugger.md                # Haiku, read-only + Bash, memory: project
+│   └── verifier.md                # Haiku, read-only + Bash, memory: project
 ├── skills/
 │   ├── sea-init/SKILL.md          # disable-model-invocation
 │   ├── sea-go/SKILL.md            # disable-model-invocation
