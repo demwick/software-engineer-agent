@@ -5,10 +5,24 @@
   See LICENSE in the repository root for the full license text.
 -->
 
-# [NAME] Plugin — Design Document
+# software-engineer-agent Plugin — Design Document
 
-**Status:** Draft — working name `software-engineer-agent`
+**Status:** Accepted — superseded by `docs/specs/2026-04-15-scope-and-state-refactor.md` for v2.0.0
 **Last updated:** 2026-04-14
+
+---
+
+## Superseding note
+
+This document describes the v1.0.0 design as shipped on 2026-04-14. For
+v2.0.0 scope and state decisions, see
+`docs/specs/2026-04-15-scope-and-state-refactor.md`. When that spec and
+this one disagree, the spec wins.
+
+The v1.0.0 content below is preserved as a historical record of the
+original intent — it is still accurate for what shipped in v1.0.0 and
+useful as context for "what the original plan was before the refactor".
+It is intentionally left unedited.
 
 ---
 
@@ -134,6 +148,6 @@ ok=true  → mark phase done, update state, suggest next phase
 
 ## Open Questions
 
-- Plugin name: TBD (placeholder: `software-engineer-agent`, final: `[NAME]`)
+- Plugin name: resolved — shipped as `software-engineer-agent` in v1.0.0 (v2.0.0 keeps the name)
 - Marketplace distribution: post-V1
 - MCP server: not in V1, optional later
