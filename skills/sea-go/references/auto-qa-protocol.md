@@ -13,23 +13,38 @@ describes the basic flow; read this when you need the full semantics,
 retry counter rules, host-compat integration, or failure recovery
 protocol.
 
-## The Marker File
+## The Marker Files (v2.0.0 two-file scheme)
 
-`.sea/.needs-verify` is the single source of truth for "is there
-work to verify?". It contains one integer — the current retry count
-(starts at 0). Its **existence** tells the Stop hook to run; its
-**contents** tell the hook how many retries have already been spent.
+v2.0.0 split the marker into two files so the "should we verify?"
+signal is not overloaded with the "how many retries already?" counter.
 
-When you set it:
+- **`.sea/.needs-verify`** — existence-only flag. Contents ignored.
+  Its presence tells the Stop hook to run; its absence tells the
+  hook to exit 0 silently.
+- **`.sea/.verify-attempts`** — JSON object `{"attempts": N}`. The
+  hook owns this file: it reads the counter, increments on failure
+  via an atomic jq + mv into a temp file, and deletes the file on
+  any terminal state (pass, loop-protection give-up, hard give-up,
+  host-compat fail).
+
+Skills arm auto-QA by touching the marker only. Never write a
+number into `.needs-verify`, never create `.verify-attempts`
+yourself — both are owned by the hook.
 
 ```bash
-mkdir -p .sea && echo 0 > .sea/.needs-verify
+mkdir -p .sea && : > .sea/.needs-verify
 ```
 
 When the Stop hook runs:
 
 1. Marker absent → nothing to verify, Claude stops normally.
-2. Marker present → hook proceeds to detection.
+2. Marker present → hook reads `.verify-attempts` (default 0 if
+   absent) and proceeds to detection.
+
+**v1 backward compatibility.** If `.verify-attempts` is missing, the
+hook falls back to reading `.needs-verify`'s legacy integer content,
+so v1 fixtures and in-flight migrated projects still work until
+`scripts/state-update.sh` rolls state forward to schema_version 2.
 
 ## Test Runner Detection
 
@@ -55,13 +70,17 @@ phases and very early MVPs).
 
 ## Retry Counter Semantics
 
+Counter lives in `.sea/.verify-attempts` as `{"attempts": N}`.
+"marker deleted" below means both files (`.needs-verify` and
+`.verify-attempts`) are removed.
+
 ```
 attempt 0 → test runs → PASS → marker deleted, Claude stops
-                      → FAIL → counter becomes 1, block decision, Claude auto-fixes
+                      → FAIL → .verify-attempts becomes {"attempts":1}, block decision, Claude auto-fixes
 attempt 1 → test runs → PASS → marker deleted
-                      → FAIL → counter becomes 2, block decision, Claude auto-fixes
+                      → FAIL → .verify-attempts becomes {"attempts":2}, block decision, Claude auto-fixes
 attempt 2 → test runs → PASS → marker deleted
-                      → FAIL → counter > 2, give up, block decision with give-up reason
+                      → FAIL → NEXT > 2, give up, block decision with give-up reason, marker deleted
 ```
 
 A second give-up branch handles the rare case where `stop_hook_active`

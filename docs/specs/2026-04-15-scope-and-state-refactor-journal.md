@@ -86,13 +86,31 @@ This is the permanent record of what was decided at each phase and why.
 - README update: new "Adding a milestone after the MVP shipped" example in the Typical workflows section.
 - Atomic commit count: 2 (1 feat + 1 docs)
 
-## Phase 6 — state consolidation (YYYY-MM-DD)
+## Phase 6 — state consolidation (2026-04-15)
 
-- PR: #<number>
-- Consolidations applied: <list>
-- Migration eval fixture: <path>
-- Schema version: v1 → v2
-- Regression check on auto-qa two-file marker: <pass / fail>
+- PR: merged into `main` via `--no-ff` from `refactor/state-consolidation` (single-session mode)
+- User sign-off on consolidation scope: yes (2026-04-15, verbatim re-read + explicit "onaylıyorum")
+- Consolidations applied:
+  - **Opportunity 1** (`.needs-verify` content-as-retry-counter split): `hooks/auto-qa` now reads a separate `.verify-attempts` JSON file (`{"attempts": N}`) written via atomic `jq` + `mv`; treats `.needs-verify` as existence-only. Every terminal branch clears both files. A v1 backward-compatibility fallback reads the marker's legacy integer content when `.verify-attempts` is absent, so migrated v1 projects keep working through the schema rollover. `skills/sea-go/SKILL.md` and `skills/sea-quick/SKILL.md` now arm auto-QA with a bare `: > .sea/.needs-verify` touch. `auto-qa-protocol.md` rewritten for the two-file scheme.
+  - **Opportunity 1 companion** (schema_version bump): `scripts/state-update.sh` auto-migrates `schema_version: 1` → `2` on first touch. Idempotent on v2 files. `sea-init/SKILL.md` now writes `schema_version: 2` on new projects. The four shared eval state fixtures (fresh/executing/blocked/planning) bumped to v2; corrupted.json intentionally left malformed.
+  - **Opportunity 2** (dead-command state paths marked v1-only in docs): `docs/STATE.md` inventory table and per-file details updated so review.md, reviews/ad-hoc-*, ship-report.json, ship/*.log, debug/session-*/*.md, and summary.md.reverted-* are explicitly labeled "v1-only, deprecated in v2.0.0" with pointers to composition replacements.
+- Opportunities deferred: 3 (drop `state.json.total_phases` duplication), 4 (merge `progress.json` into `state.json.active_phase`), 5 (segregate transient artifacts under `.sea/logs/`).
+- Migration eval fixture: `evals/fixtures/states/v1-legacy.json`
+- New eval suites:
+  - `evals/suites/state/v1-to-v2-migration.sh` — asserts bump happens, required fields preserved, caller merge survives, idempotent on second run.
+  - `evals/suites/hooks/auto-qa-two-file-full-cycle.sh` — walks the full retry-then-give-up cycle for the two-file marker scheme.
+- Existing eval updates:
+  - `auto-qa-blocks-on-failing-tests.sh` — touch-marker + assert `.verify-attempts` created with attempts=1 after first failure.
+  - `auto-qa-passes-on-clean-run.sh` — pre-seed stale `.verify-attempts` then assert it clears alongside the marker.
+  - `auto-qa-respects-loop-protection.sh` — seed attempts=2 in `.verify-attempts`, marker empty.
+  - `update-preserves-required-fields.sh` — `schema_version == 2` after migration.
+- Existing test updates in `tests/run-tests.sh`:
+  - auto-qa block reads counter from `.verify-attempts` via jq.
+  - state-update block starts at `schema_version: 2` to prove preservation (migration covered separately by the dedicated eval).
+- `docs/STATE.md` cross-file invariant list gained a new invariant 7 (`.verify-attempts` implies `.needs-verify`).
+- Regression check on auto-qa two-file marker: **pass** — all 19 eval suites green, all 70 run-tests.sh checks green.
+- Schema version: v1 → v2 (one-way, idempotent, auto-migrated on first `state-update.sh` touch).
+- Atomic commit count: 8 (hook + skills/protocol doc + eval/test updates + schema bump + migration eval + regression eval + STATE.md docs + this journal update + merge commit)
 
 ## Phase 7 — rationale comments (YYYY-MM-DD)
 

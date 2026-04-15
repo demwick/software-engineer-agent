@@ -14,6 +14,16 @@
 # Required fields (schema_version, mode, created) are never overwritten
 # unless explicitly passed. Unknown keys are allowed but logged.
 #
+# v1 → v2 auto-migration: on every invocation, if the on-disk state file
+# reports schema_version == 1 the script rewrites it to 2 in place (in
+# the same atomic write as the caller's merge). The migration is:
+#   - set schema_version = 2
+#   - no field renames, no field removals in v2.0.0
+# The bump itself is the contract that marks the project as using the
+# two-file .needs-verify / .verify-attempts scheme from hooks/auto-qa.
+# Migration is one-way and idempotent — running it on an already-v2
+# file is a no-op.
+#
 # Examples:
 #   bash state-update.sh current_phase=3 last_commit=a1b2c3d
 #   bash state-update.sh --project-dir /tmp/proj completed=true
@@ -77,6 +87,16 @@ done
 LAST_SESSION_SET=$(printf '%s' "$MERGE_JSON" | jq 'has("last_session")')
 if [ "$LAST_SESSION_SET" = "false" ]; then
     MERGE_JSON=$(printf '%s' "$MERGE_JSON" | jq --arg ts "$NOW" '. + {last_session: $ts}')
+fi
+
+# v1 → v2 auto-migration: if the on-disk file reports schema_version == 1,
+# force it to 2 in the same merge. Idempotent on already-v2 files.
+CURRENT_SCHEMA=$(jq -r '.schema_version // 0' "$STATE_FILE" 2>/dev/null || echo "0")
+if [ "$CURRENT_SCHEMA" = "1" ]; then
+    SCHEMA_SET_BY_CALLER=$(printf '%s' "$MERGE_JSON" | jq 'has("schema_version")')
+    if [ "$SCHEMA_SET_BY_CALLER" = "false" ]; then
+        MERGE_JSON=$(printf '%s' "$MERGE_JSON" | jq '. + {schema_version: 2}')
+    fi
 fi
 
 # Merge into existing state.

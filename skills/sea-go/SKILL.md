@@ -74,13 +74,15 @@ Wait for executor to finish. It returns `STATUS: done` or `STATUS: blocked`.
 
 ## Step 6: Arm the Auto-QA Hook
 
-Before your response ends, arm the auto-QA marker:
+Before your response ends, arm the auto-QA marker. In v2.0.0 the marker is **existence-only** — content is ignored. The retry counter lives in a sibling file `.sea/.verify-attempts` that `hooks/auto-qa` writes atomically.
 
 ```bash
-mkdir -p .sea && echo 0 > .sea/.needs-verify
+mkdir -p .sea && : > .sea/.needs-verify
 ```
 
-The `Stop` hook (`hooks/auto-qa`) will detect the marker, run the project's test runner, and either clear the marker (pass) or return a `block` decision so Claude auto-fixes (up to 2 retries). Do **not** invoke the verifier agent manually — the hook handles it.
+Do **not** write a number into `.needs-verify`; the hook no longer reads it. Do **not** create `.verify-attempts` yourself either — the hook owns it. Just touch the marker.
+
+The `Stop` hook (`hooks/auto-qa`) will detect the marker, run the project's test runner, and either clear both files (pass) or return a `block` decision and bump `.verify-attempts` so Claude auto-fixes (up to 2 retries). Do **not** invoke the verifier agent manually — the hook handles it.
 
 For the full protocol — retry counter semantics, host-compat post-check, failure recovery format, test runner detection order — see `references/auto-qa-protocol.md`.
 

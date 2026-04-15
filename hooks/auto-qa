@@ -8,11 +8,20 @@
 # Stop hook for software-engineer-agent.
 # When .sea/.needs-verify exists, runs the project's test runner and
 # reports failures back to Claude so it can auto-retry. Gives up after 2 retries.
+#
+# v2.0.0 schema: the marker and retry counter are separate files.
+#   .sea/.needs-verify   — existence-only flag (content ignored).
+#   .sea/.verify-attempts — JSON object {"attempts": N}, written atomically.
+# v1 fixtures that wrote an integer into .needs-verify still work: if
+# .verify-attempts is absent we fall back to reading the marker's content
+# as an integer. This keeps the hook backward-compatible across the
+# schema v1 → v2 migration while scripts/state-update.sh rolls state forward.
 
 set -euo pipefail
 
 STATE_DIR=".sea"
 MARKER="${STATE_DIR}/.needs-verify"
+ATTEMPTS_FILE="${STATE_DIR}/.verify-attempts"
 
 # Read hook input (stdin JSON). Used to check stop_hook_active for loop protection.
 INPUT=$(cat 2>/dev/null || echo "{}")
@@ -20,20 +29,31 @@ INPUT=$(cat 2>/dev/null || echo "{}")
 # No marker → nothing to verify, let Claude stop normally.
 [ -f "$MARKER" ] || exit 0
 
-# Require jq for safe JSON output. If missing, drop marker and exit cleanly.
+# Require jq for safe JSON output. If missing, drop markers and exit cleanly.
 if ! command -v jq >/dev/null 2>&1; then
-    rm -f "$MARKER"
+    rm -f "$MARKER" "$ATTEMPTS_FILE"
     exit 0
 fi
 
 STOP_ACTIVE=$(echo "$INPUT" | jq -r '.stop_hook_active // false' 2>/dev/null || echo "false")
-ATTEMPTS=$(cat "$MARKER" 2>/dev/null || echo "0")
+
+# Read retry counter: v2 .verify-attempts first, v1 .needs-verify content fallback.
+ATTEMPTS=0
+if [ -f "$ATTEMPTS_FILE" ]; then
+    ATTEMPTS=$(jq -r '.attempts // 0' "$ATTEMPTS_FILE" 2>/dev/null || echo "0")
+else
+    # v1 fallback: marker content may be an integer retry count.
+    MARKER_CONTENT=$(cat "$MARKER" 2>/dev/null || echo "")
+    if printf '%s' "$MARKER_CONTENT" | grep -Eq '^[0-9]+$'; then
+        ATTEMPTS="$MARKER_CONTENT"
+    fi
+fi
 ATTEMPTS=${ATTEMPTS:-0}
 
 # Loop-protection belt-and-suspenders: if the runtime is already looping AND we've
 # already retried twice, give up and report the situation to the user.
 if [ "$STOP_ACTIVE" = "true" ] && [ "$ATTEMPTS" -ge 2 ]; then
-    rm -f "$MARKER"
+    rm -f "$MARKER" "$ATTEMPTS_FILE"
     LAST_LOG="${STATE_DIR}/.last-verify.log"
     jq -cn --arg log "$LAST_LOG" \
         '{decision: "block", reason: ("Auto-QA loop-protection tripped after 2 retries — tests are still failing. Review " + $log + " and report the situation to the user. Do not keep retrying.")}'
@@ -47,9 +67,9 @@ if [ -n "${CLAUDE_PLUGIN_ROOT:-}" ] && [ -f "$DETECT_SCRIPT" ]; then
     TEST_CMD=$(bash "$DETECT_SCRIPT" . 2>/dev/null || true)
 fi
 
-# No detectable test runner → auto-pass, clear the marker.
+# No detectable test runner → auto-pass, clear marker + counter.
 if [ -z "$TEST_CMD" ]; then
-    rm -f "$MARKER"
+    rm -f "$MARKER" "$ATTEMPTS_FILE"
     exit 0
 fi
 
@@ -68,14 +88,14 @@ if sh -c "$TEST_CMD" > "$TEST_LOG" 2>&1; then
             # Append to log so /sea-status and humans can see it later.
             printf '\n\n=== host-compat warning ===\n%s\n' "$COMPAT_OUT" >> "$TEST_LOG"
             # Return a block so Claude fixes it now rather than shipping broken packaging.
-            rm -f "$MARKER"
+            rm -f "$MARKER" "$ATTEMPTS_FILE"
             jq -cn --arg msg "$COMPAT_OUT" \
                 '{decision: "block", reason: ("Tests passed but host-compat check failed: " + $msg + " Fix the packaging metadata and re-run tests. Do not skip — this blocks pip install on the user host.")}'
             exit 0
         fi
     fi
-    # Pass → clear marker, let Claude stop.
-    rm -f "$MARKER"
+    # Pass → clear marker + counter, let Claude stop.
+    rm -f "$MARKER" "$ATTEMPTS_FILE"
     exit 0
 fi
 
@@ -83,15 +103,17 @@ fi
 NEXT=$((ATTEMPTS + 1))
 
 if [ "$NEXT" -gt 2 ]; then
-    rm -f "$MARKER"
+    rm -f "$MARKER" "$ATTEMPTS_FILE"
     jq -cn \
         --arg log "$TEST_LOG" \
         '{decision: "block", reason: ("Auto-QA gave up after 2 retries — tests are still failing. Review " + $log + " and report the situation to the user. Do not keep retrying.")}'
     exit 0
 fi
 
-# Record the retry attempt and return a block-decision with actionable detail.
-echo "$NEXT" > "$MARKER"
+# Record the retry attempt atomically (temp file + mv) in .verify-attempts.
+TMP_ATTEMPTS=$(mktemp)
+jq -n --argjson n "$NEXT" '{attempts: $n}' > "$TMP_ATTEMPTS"
+mv "$TMP_ATTEMPTS" "$ATTEMPTS_FILE"
 TEST_TAIL=$(tail -30 "$TEST_LOG" 2>/dev/null || echo "")
 
 jq -cn \

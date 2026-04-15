@@ -13,8 +13,11 @@ fixture_state "$WORKDIR" executing
 trap 'rm -rf "$WORKDIR"' EXIT
 
 # node-basic has "test": "echo ok" — tests pass.
-# Create the .needs-verify marker so the hook runs.
-echo "0" > "$WORKDIR/.sea/.needs-verify"
+# Arm auto-QA by touching the v2 existence-only marker. Pre-seed
+# .verify-attempts with a stale counter to verify the clean-run
+# branch also clears the counter file.
+: > "$WORKDIR/.sea/.needs-verify"
+printf '{"attempts":1}' > "$WORKDIR/.sea/.verify-attempts"
 
 output="$(cd "$WORKDIR" && CLAUDE_PLUGIN_ROOT="$REPO_ROOT" \
     bash "$REPO_ROOT/hooks/auto-qa" <<< '{"stop_hook_active":false}')"
@@ -29,8 +32,12 @@ if printf '%s' "$output" | jq -e '.decision == "block"' >/dev/null 2>&1; then
     exit 1
 fi
 
-# Marker should be cleaned up.
+# Both marker and counter must be cleaned up on pass.
 if [[ -f "$WORKDIR/.sea/.needs-verify" ]]; then
     printf 'FAIL: .needs-verify marker was not removed after passing tests\n' >&2
+    exit 1
+fi
+if [[ -f "$WORKDIR/.sea/.verify-attempts" ]]; then
+    printf 'FAIL: .verify-attempts counter was not removed after passing tests\n' >&2
     exit 1
 fi

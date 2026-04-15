@@ -77,7 +77,7 @@ Create `.sea/` at the project root with:
 - `.sea/state.json`:
   ```json
   {
-    "schema_version": 1,
+    "schema_version": 2,
     "mode": "from-scratch" | "finish-existing",
     "created": "<ISO 8601 UTC>",
     "current_phase": 1,
@@ -87,7 +87,12 @@ Create `.sea/` at the project root with:
   }
   ```
 
-  Always include `schema_version`. Future plugin versions check this field on read; if a state file is missing it or has an older value, they may run a migration before proceeding.
+  v2.0.0 bumped `schema_version` from 1 to 2. The bump signals that the
+  project uses the two-file `.sea/.needs-verify` + `.sea/.verify-attempts`
+  auto-QA marker scheme (see `skills/sea-go/references/auto-qa-protocol.md`).
+  New projects write `schema_version: 2` directly. Existing v1 projects
+  are migrated on first `scripts/state-update.sh` call — the migration
+  is idempotent and one-way; there is no rollback inside the script.
 
   The **initial** state.json write happens via `Write` (file doesn't exist yet). All **subsequent** mutations from any skill must go through `scripts/state-update.sh` so required fields are never dropped:
   ```bash
