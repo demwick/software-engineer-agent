@@ -54,4 +54,19 @@ grep -q 'Risk gate inspection' skills/sea-go/SKILL.md \
 grep -q 'Resume after gate' skills/sea-go/SKILL.md \
   || fail "sea-go/SKILL.md missing 'Resume after gate' section"
 
+# v2.1.0 Iter 4: _common.md is auto-injected by SubagentStart hook,
+# so the manual "Read agents/_common.md first" imperative must be
+# absent from every agent file. The auto-injection replaces it.
+for agent in researcher planner executor verifier; do
+  if grep -q '\*\*Read `agents/_common\.md` first' "agents/${agent}.md"; then
+    fail "${agent}.md still has the manual 'Read agents/_common.md first' imperative — should be auto-injected via SubagentStart hook"
+  fi
+done
+
+# SubagentStart hook exists and is registered
+[[ -x hooks/subagent-start ]] \
+  || fail "hooks/subagent-start missing or not executable"
+grep -q '"SubagentStart"' hooks/hooks.json \
+  || fail "hooks/hooks.json missing SubagentStart registration"
+
 echo "prompt-quality.sh: all checks passed"

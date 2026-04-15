@@ -11,6 +11,32 @@ All notable changes to `software-engineer-agent` are documented here.
 This project follows [Keep a Changelog](https://keepachangelog.com/) and
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased] — v2.2.0
+
+### Added
+- **Iter 4: auto-injection of `_common.md`.** New `hooks/subagent-start`
+  hook wired to the Claude Code `SubagentStart` event. Reads
+  `agents/_common.md` from `CLAUDE_PLUGIN_ROOT` and injects it into
+  every SEA subagent's launch context via the `additionalContext`
+  channel. Filters on the stdin `agent_type` field (plugin-qualified,
+  e.g. `software-engineer-agent:researcher`) so other plugins'
+  subagents are untouched.
+- Live-validated against a real `claude --plugin-dir` session: the
+  researcher agent quoted Rule 7 verbatim from its launch context
+  without reading any file, confirming auto-injection works end-to-end.
+
+### Changed
+- Removed the manual `**Read agents/_common.md first.**` imperative
+  from every SEA agent file (`researcher.md`, `planner.md`,
+  `executor.md`, `verifier.md`). The `SubagentStart` hook supersedes
+  it; the file now carries a short HTML comment pointing readers at
+  `hooks/subagent-start` instead.
+
+### Eval coverage
+- `evals/suites/agents/prompt-quality.sh` extended: asserts the manual
+  imperative is absent from every agent file, the hook script exists
+  and is executable, and `hooks.json` registers `SubagentStart`.
+
 ## [2.1.0] — 2026-04-15
 
 Prompt-quality patterns release. Installs Demonstrate Comprehension
