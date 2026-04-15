@@ -138,7 +138,7 @@ This is the permanent record of what was decided at each phase and why.
 - `git tag v2.0.0` pushed to origin ✓
 - `gh release create v2.0.0`: published at release URL above ✓
 - v1 → v2 migration tested on a real project: skipped — single-session mode; the `v1-to-v2-migration.sh` eval suite validates the core migration path (bump, field preservation, idempotence). Live project test deferred to first real user invocation post-release.
-- Smoke test (`claude --plugin-dir .`): not runnable inside this session — Claude Code CLI cannot spawn itself. Deferred to user's first `claude --plugin-dir .` invocation from a fresh clone; `bash evals/run.sh` green (19 suites) + `bash tests/run-tests.sh` green (70 tests) serve as the automated proxy.
+- Smoke test (`claude --plugin-dir .`): **PASS** — fresh clone from GitHub, `/software-engineer-agent:sea-status` responded correctly ("No project state found. Run /sea-init to bootstrap."), `/sea-init` launched Mode B (Finish Existing Project) and triggered the `researcher` agent successfully. Plugin loads, skill routing works, agents invoke cleanly.
 - Final verdict: **refactor complete**. All 8 phases executed; all exit criteria met; all success criteria from the spec's global checklist verified (see below).
 - Atomic commit count (all phases combined, excluding merge commits): ~38 commits across 8 branches
 
@@ -156,7 +156,7 @@ This is the permanent record of what was decided at each phase and why.
 - [x] Journal has an entry for every phase.
 - [x] `bash evals/run.sh` green (19 passed, 0 failed).
 - [x] `bash tests/run-tests.sh` green (70 passed, 0 failed).
-- [ ] Fresh clone + `claude --plugin-dir .` smoke test — deferred to user (see above).
+- [x] Fresh clone + `claude --plugin-dir .` smoke test — **PASS** (2026-04-15).
 - [x] `/sea-go` on a v1 state fixture auto-migrates to v2 on first run — verified by `evals/suites/state/v1-to-v2-migration.sh`.
 - [x] `git tag v2.0.0` pushed to origin.
 - [x] GitHub release `v2.0.0` published.
