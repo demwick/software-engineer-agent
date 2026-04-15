@@ -26,4 +26,16 @@ if grep -q 'Demonstrate Comprehension' agents/verifier.md 2>/dev/null; then
   fail "verifier.md should NOT have Step 0 — it is intentionally excluded"
 fi
 
+# Planner schema includes scope bounds
+grep -q 'Allowed paths\|allowed_paths' agents/planner.md \
+  || fail "planner.md missing allowed_paths / Allowed paths in plan schema"
+grep -q 'Forbidden paths\|forbidden_paths' agents/planner.md \
+  || fail "planner.md missing forbidden_paths / Forbidden paths in plan schema"
+
+# Executor has pre-commit scope check
+grep -q 'Pre-commit Scope Check\|Pre-commit scope check' agents/executor.md \
+  || fail "executor.md missing pre-commit scope check"
+grep -q 'scope violation' agents/executor.md \
+  || fail "executor.md missing scope-violation STATUS format"
+
 echo "prompt-quality.sh: all checks passed"
