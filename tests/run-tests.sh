@@ -142,31 +142,32 @@ assert_contains "no marker → exit 0 silently" "$out" "EXIT:0"
 assert_contains "no marker → no JSON output" "$out" "^EXIT"
 
 mkdir -p .sea
-echo 0 > .sea/.needs-verify
+: > .sea/.needs-verify
 out=$(echo '{}' | bash "$REPO_ROOT/hooks/auto-qa"; echo "EXIT:$?")
 assert_contains "marker but no test runner → auto-pass exit 0" "$out" "EXIT:0"
 [ ! -f .sea/.needs-verify ] && { PASS=$((PASS+1)); echo "  ok   marker cleared after auto-pass"; } \
                              || { FAIL=$((FAIL+1)); FAILURES+=("marker cleared after auto-pass"); echo "  FAIL marker cleared after auto-pass"; }
 
-# Failing test
+# Failing test — counter now lives in .verify-attempts, not the marker.
 mkdir -p .sea
-echo 0 > .sea/.needs-verify
+: > .sea/.needs-verify
 echo '{"scripts":{"test":"false"}}' > package.json
 out=$(echo '{}' | bash "$REPO_ROOT/hooks/auto-qa")
 assert_contains "failing test → block decision" "$out" '"decision":"block"'
-attempts=$(cat .sea/.needs-verify)
-assert "retry counter incremented" "$attempts" "1"
+attempts=$(jq -r '.attempts' .sea/.verify-attempts 2>/dev/null || echo "")
+assert "retry counter incremented (in .verify-attempts)" "$attempts" "1"
 
 # Second failure: counter to 2
 out=$(echo '{}' | bash "$REPO_ROOT/hooks/auto-qa")
 assert_contains "second failure still blocks" "$out" '"decision":"block"'
-attempts=$(cat .sea/.needs-verify)
-assert "retry counter at 2" "$attempts" "2"
+attempts=$(jq -r '.attempts' .sea/.verify-attempts 2>/dev/null || echo "")
+assert "retry counter at 2 (in .verify-attempts)" "$attempts" "2"
 
 # Third failure with stop_hook_active=true → give up AND report
 out=$(echo '{"stop_hook_active":true}' | bash "$REPO_ROOT/hooks/auto-qa")
-[ ! -f .sea/.needs-verify ] && { PASS=$((PASS+1)); echo "  ok   give up after 2 retries clears marker"; } \
-                             || { FAIL=$((FAIL+1)); FAILURES+=("give up clears marker"); echo "  FAIL give up clears marker"; }
+[ ! -f .sea/.needs-verify ] && [ ! -f .sea/.verify-attempts ] \
+    && { PASS=$((PASS+1)); echo "  ok   give up after 2 retries clears marker + counter"; } \
+    || { FAIL=$((FAIL+1)); FAILURES+=("give up clears marker + counter"); echo "  FAIL give up clears marker + counter"; }
 assert_contains "give up reports block decision (loop-protection branch)" "$out" '"decision":"block"'
 assert_contains "give up reason mentions loop-protection" "$out" "loop-protection"
 
@@ -176,7 +177,7 @@ cd "$REPO_ROOT"
 if [ -n "$HOST_PY" ]; then
     t=$(mktmpdir); cd "$t"
     mkdir -p .sea
-    echo 0 > .sea/.needs-verify
+    : > .sea/.needs-verify
     # Passing test script (exit 0) via package.json to trip detect-test → "npm test"
     # but set PATH to a shim so npm won't run. Simpler: use Makefile + /usr/bin/true.
     printf 'test:\n\t@true\n' > Makefile
