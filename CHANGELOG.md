@@ -20,6 +20,13 @@ This project follows [Keep a Changelog](https://keepachangelog.com/) and
   agents state task understanding in structured `UNDERSTOOD:` format before any tool call.
 - `evals/suites/agents/prompt-quality.sh`: structural regression protection for both
   additions (Rule 7 presence, Step 0 presence, verifier exclusion).
+- Per-task `Allowed paths` / `Forbidden paths` fields in `planner.md` Mode B plan schema.
+- Pre-commit scope check (Step 5.5) in `executor.md`: detects out-of-scope files before
+  committing; emits `STATUS: blocked` with scope-violation reason.
+- `evals/fixtures/plans/sample-plan-with-scope.md`: fixture plan demonstrating scope bounds.
+- `evals/suites/agents/scope-creep-detection.sh`: structural simulation of scope-violation
+  detection logic.
+- `evals/suites/agents/prompt-quality.sh` extended with scope-bound assertions.
 
 ## [2.0.0] — 2026-04-15
 
