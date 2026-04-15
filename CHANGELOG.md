@@ -27,6 +27,30 @@ This project follows [Keep a Changelog](https://keepachangelog.com/) and
 - `evals/suites/agents/scope-creep-detection.sh`: structural simulation of scope-violation
   detection logic.
 - `evals/suites/agents/prompt-quality.sh` extended with scope-bound assertions.
+- Per-plan `risk_gates` section in `planner.md` Mode B plan schema with
+  gate-kind taxonomy (`destructive-git`, `filesystem-destruction`,
+  `dependency-removal`, `schema-migration`, `unsafe-shell`,
+  `network-state-mutation`).
+- Gate-pause protocol in `executor.md`: new `STATUS: gate` exit, writes
+  `.sea/phases/phase-N/gate-pending.json`, marks task status `gated` in
+  `progress.json`, and resumes via "gate resumed" context on re-launch.
+- Step 4.5 "Risk gate inspection" and "Resume after gate" branch in
+  `skills/sea-go/SKILL.md`: surfaces gates for explicit user confirmation
+  before executor launch and on each `STATUS: gate` return.
+- `docs/STATE.md` documents the new `.sea/phases/phase-N/gate-pending.json`
+  marker (writer, readers, format, invariants).
+- `evals/fixtures/plans/sample-plan-with-gates.md`: fixture plan with one
+  task per gate kind.
+- `evals/suites/agents/risk-gate-flow.sh`: structural simulation of the
+  gate-pending marker round-trip; does not run a real executor.
+- `evals/suites/agents/prompt-quality.sh` extended with risk-gate
+  assertions (planner, executor, sea-go).
+
+### Pending (Iter 3)
+- **Live end-to-end validation required before merge.** Iteration 3 may
+  not ship without a successful `claude --plugin-dir` run against a
+  throwaway repo containing one risk gate, confirming executor pauses,
+  sea-go surfaces the prompt, and the resume path works end-to-end.
 
 ## [2.0.0] — 2026-04-15
 

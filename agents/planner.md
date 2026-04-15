@@ -131,6 +131,45 @@ direction for this specific task.
 - If a task has no `Allowed paths` entry (pre-v2.1.0 plan), the executor treats
   it as unrestricted with a one-line warning.
 
+### Per-plan risk gates
+
+Every plan.md must include a `risk_gates` section at the top of the file,
+even if empty. A task is a **risk gate** if it contains any of:
+
+- **Destructive git ops:** `reset --hard`, `branch -D`, `push --force`,
+  `clean -fd`, tag deletion.
+- **Filesystem destruction:** `rm -rf`, `truncate`, or file deletion from
+  a directory with > 10 commits of history.
+- **Dependency removal or major-version downgrade.**
+- **Schema migration** (state, database, config file format).
+- **Shell commands** that run untrusted input through `eval`, `exec`, or a
+  subshell.
+- **Network operations that modify external state:** API POST/DELETE,
+  `npm publish`, `gh release create`, `docker push`.
+
+Emit as:
+
+```yaml
+risk_gates:
+  - task: 5
+    kind: "dependency-removal"
+    reason: "Removes @legacy/auth; may break any import we haven't caught"
+    confirmation: "Confirm removal of @legacy/auth. Last used in commit abc123; grep found 3 import sites, all migrated in task 4. Proceed?"
+  - task: 7
+    kind: "schema-migration"
+    reason: "Runs .sea/state.json migration from v1 to v2"
+    confirmation: "Confirm state migration. Back up .sea/ first? Migration is one-way."
+```
+
+Empty gates → write `risk_gates: []`. Empty is an **assertion** that no
+gate-triggering task exists in this phase, not an omission. The planner
+must read every task's verification and rationale before deciding the
+list is empty.
+
+**Gate kinds (taxonomy):** `destructive-git`, `filesystem-destruction`,
+`dependency-removal`, `schema-migration`, `unsafe-shell`,
+`network-state-mutation`.
+
 ## Rules
 
 - **Atomicity:** each task = **one** commit. If a task won't fit in a single commit, split it.

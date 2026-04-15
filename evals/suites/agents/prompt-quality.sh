@@ -38,4 +38,20 @@ grep -q 'Pre-commit Scope Check\|Pre-commit scope check' agents/executor.md \
 grep -q 'scope violation' agents/executor.md \
   || fail "executor.md missing scope-violation STATUS format"
 
+# Planner schema includes risk_gates section (v2.1.0 Iter 3)
+grep -q 'risk_gates' agents/planner.md \
+  || fail "planner.md missing risk_gates section in plan schema"
+
+# Executor has gate-pause protocol and STATUS: gate exit (v2.1.0 Iter 3)
+grep -q 'Gate-pause protocol' agents/executor.md \
+  || fail "executor.md missing Gate-pause protocol section"
+grep -q 'STATUS: gate' agents/executor.md \
+  || fail "executor.md missing STATUS: gate exit format"
+
+# sea-go has Step 4.5 risk gate inspection (v2.1.0 Iter 3)
+grep -q 'Risk gate inspection' skills/sea-go/SKILL.md \
+  || fail "sea-go/SKILL.md missing Step 4.5 'Risk gate inspection'"
+grep -q 'Resume after gate' skills/sea-go/SKILL.md \
+  || fail "sea-go/SKILL.md missing 'Resume after gate' section"
+
 echo "prompt-quality.sh: all checks passed"

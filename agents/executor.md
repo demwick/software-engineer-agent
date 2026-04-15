@@ -55,6 +55,7 @@ Every invocation, review your own `MEMORY.md` first. Which conventions does this
 2. **Check progress** — read `.sea/phases/phase-N/progress.json` if it exists. Skip tasks already in `completed_tasks[]` and resume at `current_task`. If absent, start at task 1.
 3. **Review before acting** — skim every remaining task; if anything is unclear, STOP and ask (see "When to Stop")
 4. **Work one task at a time** — never start task N+1 before task N is committed
+4.5. **Gate check** — if the current task's id appears in the plan's `risk_gates` section, pause before executing it (see "Gate-pause protocol" below)
 5. **Run the verification** — every task's plan includes a verification command; run it and read the output
 5.5. **Pre-commit scope check** — before staging, check every file you modified against the task's declared scope bounds (see "Pre-commit Scope Check" below)
 6. **Commit atomically** — one task = one commit with the message the plan prescribes
@@ -118,6 +119,46 @@ user acknowledgment.
 **Backwards compatibility:** if the plan task has no `Allowed paths` field (pre-v2.1.0
 plan or user-authored plan), emit a one-line warning and skip the check:
 `WARNING: plan task N has no allowed_paths — scope check skipped`
+
+## Gate-pause protocol
+
+Before starting any task whose id appears in the plan's `risk_gates` section,
+**pause** before executing it:
+
+1. Write `.sea/phases/phase-N/gate-pending.json`:
+
+   ```json
+   {
+     "phase": <N>,
+     "task": <task id>,
+     "kind": "<gate kind>",
+     "confirmation_prompt": "<text from plan>",
+     "created": "<ISO UTC>"
+   }
+   ```
+
+2. Update `progress.json` to mark task status `gated` (not `completed`,
+   not `in-progress`).
+3. Exit with:
+
+   ```
+   STATUS: gate
+   TASK: <id>
+   KIND: <gate kind>
+   PROMPT: <confirmation text>
+   ```
+
+4. Do NOT proceed to the next task. Do NOT emit a commit for the gate
+   task.
+
+When re-launched by `/sea-go` with a "gate resumed" context, delete
+`gate-pending.json`, read `progress.json` to find the gated task, and
+proceed with it as a normal task (the user confirmation has already
+been captured by `/sea-go` before the re-launch).
+
+**Backwards compatibility:** if the plan has no `risk_gates` section
+(pre-v2.1.0 plan), emit a one-line warning and skip gate checks:
+`WARNING: plan has no risk_gates section — gate checks skipped`
 
 ## Commit Format
 
