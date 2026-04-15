@@ -9,8 +9,12 @@
 #
 # Unlike detect-test.sh which picks the single best test runner, this
 # script tries to identify every quality gate the project has configured:
-# tests, linter, typechecker, builder, and security audit. /sea-ship
-# runs the detected commands in sequence.
+# tests, linter, typechecker, builder, and security audit.
+#
+# History: in v1.0.0 the output fed a pre-merge quality-gate command
+# that v2.0.0 removed in favor of composition (agent-skills:shipping).
+# The script is retained because diagnose tooling and future composition
+# hooks still benefit from a single canonical project quality matrix.
 #
 # Output format: one "category: command" line per detected command.
 # If a category is not applicable, the line is omitted entirely.

@@ -103,15 +103,13 @@ Just change the `### Phase N: <name>` header line. No confirmation needed — it
 
 ## When NOT to Use
 
-- The user wants to **add a multi-phase chunk** (a new milestone) → use `/sea-milestone` (calls planner properly)
 - No `.sea/roadmap.md` exists → `/sea-init` first
 - The user wants to *execute* a phase, not edit the list → `/sea-go`
-- The user wants to remove a phase that's `done` — this skill refuses, suggest `/sea-undo` for the commits then this skill for the entry
+- The user wants to remove a phase that's `done` — this skill refuses. Run `git revert` on the phase's commit range first, then use `remove` here to drop the entry.
 
 ## Related
 
 - `/sea-init` — bootstraps the roadmap this skill edits
-- `/sea-milestone` — preferred over `roadmap add` for any work that's a coherent multi-phase milestone
 - `/sea-go` — runs the phases this skill manages
 - `/sea-status` — shows the same roadmap in a more summary format
-- `/sea-undo` — when "remove this phase" really means "undo what it did"
+- **Native `git revert`** — when "remove this phase" really means "undo what it did" (SEA no longer ships a revert wrapper in v2.0.0; the migration guide has the details)

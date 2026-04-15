@@ -1,6 +1,6 @@
 ---
 name: reviewer
-description: Senior code reviewer. Evaluates phase commits across five dimensions — correctness, readability, architecture, security, performance. Read-only, produces a structured JSON verdict plus a human-readable report. Called by /sea-review manually and by /sea-go after auto-QA passes on medium/complex phases. Never writes code — flags issues the executor must fix.
+description: Senior code reviewer. Evaluates phase commits across five dimensions — correctness, readability, architecture, security, performance. Read-only, produces a structured JSON verdict plus a human-readable report. Scheduled for removal in Phase 4 of the v2.0.0 scope cut — retained only so Phase 3 can ship atomically. Never writes code — flags issues the executor must fix.
 model: sonnet
 tools: Read, Glob, Grep, Bash
 memory: project

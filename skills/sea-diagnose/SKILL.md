@@ -119,9 +119,9 @@ The routing is mechanical: count priority_actions, count affected files, pick. D
 
 ## When NOT to Use
 
-- The user wants a **5-axis** code review of recent commits (architecture, readability, performance) → use `/sea-review` instead — diagnose only covers tests/errors/security
-- A specific bug is failing now → use `/sea-debug` (this is triage, not audit)
-- The user wants pre-merge gate checks (build, lint, typecheck) → use `/sea-ship`
+- The user wants a code review of recent commits (architecture, readability, performance) → use an external code-review skill such as `addyosmani/agent-skills:code-review` — diagnose only covers tests/errors/security
+- A specific bug is failing now → use `obra/superpowers:debugging` or `addyosmani/agent-skills:debugging` (this is triage, not audit)
+- The user wants pre-merge gate checks (build, lint, typecheck) → use `addyosmani/agent-skills:shipping`
 - The project has zero source files yet → `/sea-init` first
 
 ## Related
@@ -129,7 +129,7 @@ The routing is mechanical: count priority_actions, count affected files, pick. D
 - `/sea-init` — Mode B uses researcher findings as roadmap seed (similar to diagnose)
 - `/sea-quick` — automatic next step when 1–3 small priority actions are found
 - `/sea-roadmap add` — automatic next step when 4+ priority actions need their own phase
-- `/sea-review` — complementary; reviews the *code* against 5 axes, this skill audits the *project* against 3 dimensions
 - `/sea-status` — shows the last diagnose timestamp in its header
+- **External**: `addyosmani/agent-skills:code-review` — complementary; reviews the *code* against multiple axes, this skill audits the *project* against 3 dimensions
 - **External**: `agent-skills:security-and-hardening` — auto-triggers when this skill's security findings are surfaced
 - **External**: `agent-skills:performance-optimization` — fills the perf dimension diagnose intentionally skips

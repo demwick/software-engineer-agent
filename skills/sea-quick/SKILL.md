@@ -107,7 +107,7 @@ If the task came from `.sea/diagnose.json` priority_actions, also suggest re-run
 - Task introduces a new module, route, or abstraction → `/sea-go`
 - Task changes a data model or database schema → `/sea-go`
 - Task is vague ("improve performance", "clean up") → `/sea-diagnose` first, then `/sea-go`
-- Task has security implications (auth, secrets, permissions) → `/sea-go` (gets reviewer 5-axis after)
+- Task has security implications (auth, secrets, permissions) → `/sea-go`
 - Task is a bug fix that can't be captured in a single test → `/sea-go` (planner enforces Prove-It splitting)
 - The user is mid-phase in `/sea-go` → finish that phase first, then quick
 
@@ -115,6 +115,6 @@ If the task came from `.sea/diagnose.json` priority_actions, also suggest re-run
 
 - `/sea-diagnose` — produces the priority actions this skill auto-detects in Step 1
 - `/sea-go` — where to escalate if a quick task turns out to be larger
-- `/sea-undo` — to roll back a quick task that turned out wrong
-- `/sea-debug` — when a quick task fails unexpectedly
+- **Native `git revert`** — to roll back a quick task that turned out wrong (SEA no longer ships a revert wrapper in v2.0.0; the migration guide has the details)
+- **External**: `obra/superpowers:debugging` / `addyosmani/agent-skills:debugging` — when a quick task fails unexpectedly and needs triage
 - **External**: `agent-skills:code-simplification` — paired well with simple refactor quick tasks

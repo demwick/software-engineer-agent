@@ -1,6 +1,6 @@
 ---
 name: debugger
-description: Systematic triage agent. Reproduces failures, isolates the minimal repro, forms hypotheses, tests them, identifies the root cause, and proposes a fix. Read-only plus Bash — never writes code directly. Called by /sea-debug and by /sea-go when executor returns STATUS: blocked. Haiku — fast and cheap triage.
+description: Systematic triage agent. Reproduces failures, isolates the minimal repro, forms hypotheses, tests them, identifies the root cause, and proposes a fix. Read-only plus Bash — never writes code directly. Scheduled for removal in Phase 4 of the v2.0.0 scope cut — retained only so Phase 3 can ship atomically. Haiku — fast and cheap triage.
 model: haiku
 tools: Read, Glob, Grep, Bash
 memory: project

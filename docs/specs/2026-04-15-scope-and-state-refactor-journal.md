@@ -41,13 +41,26 @@ This is the permanent record of what was decided at each phase and why.
 - User sign-off on consolidation scope: <yes / no / pending + date>
 - Items deferred to a future refactor: <list>
 
-## Phase 3 — delete cut commands (YYYY-MM-DD)
+## Phase 3 — delete cut commands (2026-04-15)
 
-- PR: #<number>
-- Skills deleted: <list>
-- Eval suites deleted: <list>
-- README/CLAUDE.md update sites: <list>
-- Regression surprises: <list>
+- PR: merged into `main` via `--no-ff` from `refactor/delete-cut-commands` (single-session mode; no GitHub PR yet — push deferred to Phase 8)
+- Skills deleted: `sea-ship`, `sea-review`, `sea-debug`, `sea-milestone`, `sea-undo` (5 skill directories, 5 atomic commits)
+- Eval suites deleted: none. `tests/run-tests.sh` had two routing assertions (`routing mentions sea-debug` and `routing mentions sea-ship`) — updated in place to assert the still-present `/sea-go` and `/sea-roadmap` instead of being deleted.
+- README/CLAUDE.md/SKILL.md/hook update sites:
+  - `skills/sea-go/SKILL.md` — Step 5 (debug handoff → composition), Step 6.5 (reviewer call → composition note), When NOT to Use, Related
+  - `skills/sea-init/SKILL.md` — description, Mode 1 detect, When NOT to Use, Related (milestone path → `/sea-roadmap add`)
+  - `skills/sea-quick/SKILL.md` — When NOT to Use, Related (git revert replaces `/sea-undo`)
+  - `skills/sea-status/SKILL.md` — When NOT to Use, Related
+  - `skills/sea-diagnose/SKILL.md` — When NOT to Use, Related
+  - `skills/sea-roadmap/SKILL.md` — When NOT to Use, Related
+  - `agents/reviewer.md`, `agents/debugger.md` — descriptions (Phase 4 will delete the files themselves)
+  - `hooks/session-start` — routing block trimmed to six commands + composition note
+  - `scripts/detect-quality.sh` — header comment no longer names the deleted pre-merge-gate command
+  - `tests/run-tests.sh` — routing assertions updated
+  - `README.md` — Commands table (11→6 rows), Directory layout skills listing, agent table "Called from" column for reviewer/debugger, Migration from v1.x section, composition workflow narrative, Acknowledgments, differentiator line
+  - `CLAUDE.md` — repo layout counts and skill list
+- Regression surprises: none. Both `bash evals/run.sh` and `bash tests/run-tests.sh` stayed green throughout.
+- Atomic commit count: 13 (5 skill deletions + 2 sea-go edits + 1 retained-skills cleanup + 1 agents cleanup + 1 hooks + 1 tests + 1 scripts + 1 docs+journal)
 
 ## Phase 4 — delete cut agents (YYYY-MM-DD)
 

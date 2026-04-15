@@ -19,8 +19,8 @@
 | **Planning** | `planner` subagent — produces atomic, verifiable task plans with explicit dependencies |
 | **Code development** | `executor` subagent — plan-driven implementation with atomic conventional commits |
 | **Testing & QA** | `verifier` subagent + Stop hook — auto-runs the project's test runner, auto-retries on failure |
-| **Code review** | Auto-QA loop — every turn the Stop hook checks plan alignment and test status, returns actionable failure reasons |
-| **Debugging & problem solving** | `/sea-diagnose` — codebase health audit (tests, error handling, security) with prioritized actions |
+| **Code review** | Auto-QA loop — every turn the Stop hook checks plan alignment and test status, returns actionable failure reasons. For deeper review, compose with `addyosmani/agent-skills:code-review`. |
+| **Debugging & problem solving** | `/sea-diagnose` — codebase health audit (tests, error handling, security) with prioritized actions. For live-bug triage, compose with `obra/superpowers:debugging` or `addyosmani/agent-skills:debugging`. |
 | **Documentation** | Agent memory — each subagent curates its own `MEMORY.md` with patterns, decisions, known gotchas |
 | **Continuous improvement** | Cross-session memory — learnings carry from every session to the next, automatically |
 
@@ -66,14 +66,11 @@ All commands live under the `software-engineer-agent:` namespace. Type `/` in Cl
 | `/sea-quick <task>` | Small task + single atomic commit | Yes — commits code | **No** |
 | `/sea-diagnose [focus]` | Health audit (tests / errors / security) | Writes `.sea/diagnose.json` | Yes |
 | `/sea-status` | Show current state and progress | Read-only | Yes |
-| `/sea-roadmap [verb]` | View or edit the phase list | Edits `.sea/roadmap.md` on verbs | Yes |
-| `/sea-undo [target]` | Revert the last phase or quick task via `git revert` | Creates new revert commits | **No** |
-| `/sea-milestone <desc>` | Add a new milestone (extra phases) to a completed project without archiving | Appends to `.sea/roadmap.md`, updates state | **No** |
-| `/sea-review [target]` | 5-axis code review (correctness / readability / architecture / security / performance) | Writes `.sea/phases/phase-N/review.md` | Yes |
-| `/sea-debug [desc]` | Systematic triage — reproduce, hypothesize, test, root cause | Writes `.sea/debug/session-N/` | **No** |
-| `/sea-ship [mode]` | Pre-merge quality gate (tests / lint / typecheck / build / audit / secrets) | Writes `.sea/ship-report.json` | **No** |
+| `/sea-roadmap [verb]` | View or edit the phase list (including milestone appends via `add`) | Edits `.sea/roadmap.md` on verbs | Yes |
 
-Commands with real side-effects (`init`, `go`, `quick`, `undo`, `milestone`, `debug`, `ship`) are **user-invocable only** — Claude will not auto-trigger them. Read-only commands (`diagnose`, `status`, `roadmap`, `review`) can be called automatically when the context calls for them.
+Commands with real side-effects (`init`, `go`, `quick`) are **user-invocable only** — Claude will not auto-trigger them. Read-only commands (`diagnose`, `status`, `roadmap`) can be called automatically when the context calls for them.
+
+> **v2.0.0 scope cut.** The command surface dropped from eleven to six. If you used `/sea-ship`, `/sea-review`, `/sea-debug`, `/sea-milestone`, or `/sea-undo` in v1.x, see the [Migration from v1.x](#migration-from-v1x) section below for the composition replacements.
 
 ### Typical workflows
 
@@ -114,6 +111,30 @@ Commands with real side-effects (`init`, `go`, `quick`, `undo`, `milestone`, `de
 → executor runs, commits, auto-QA runs the test suite, done
 ```
 
+## Migration from v1.x
+
+v2.0.0 deleted five commands whose methodology is better served by
+composition with existing plugins (or by plain git). The table below
+maps each deleted command to its replacement:
+
+| v1.x command | v2.0.0 replacement |
+|---|---|
+| `/sea-ship` | `addyosmani/agent-skills:shipping` (install via `/plugin marketplace add addyosmani/agent-skills`) |
+| `/sea-review` | `addyosmani/agent-skills:code-review` |
+| `/sea-debug` | `obra/superpowers:debugging` *or* `addyosmani/agent-skills:debugging` |
+| `/sea-milestone` | `/sea-roadmap add "<description>"` — same functionality, different command |
+| `/sea-undo` | `git revert <commit>` — no wrapper, just use git directly |
+
+The `reviewer` and `debugger` agents are also removed in v2.0.0 —
+they had no callers after the commands were deleted.
+
+State schema: if you have a v1.x project with a `.sea/` directory,
+v2.0.0 will migrate it automatically on first `/sea-go` or `/sea-init`
+invocation. The migration is one-way; the `pre-scope-cut` git tag is
+the floor if you need to roll back the plugin itself. See
+`docs/migration/v1-to-v2.md` (ships with v2.0.0) for the full
+migration checklist.
+
 ## Architecture
 
 The plugin is a thin layer over Claude Code's native primitives. No external runtime, no MCP servers, no configuration.
@@ -128,8 +149,8 @@ The plugin is a thin layer over Claude Code's native primitives. No external run
 | `planner` | Sonnet | Read, Glob, Grep, Bash, WebFetch (no Write) | project | `/sea-init`, `/sea-go` |
 | `executor` | Sonnet | Read, Write, Edit, Glob, Grep, Bash, WebFetch | project | `/sea-go`, `/sea-quick` |
 | `verifier` | Haiku | Read, Glob, Grep, Bash | project | `Stop` hook (auto-qa), `/sea-go` |
-| `reviewer` | Sonnet | Read, Glob, Grep, Bash | project | `/sea-review`, `/sea-go` (post auto-QA on medium/complex phases) |
-| `debugger` | Haiku | Read, Glob, Grep, Bash | project | `/sea-debug`, `/sea-go` (on executor `STATUS: blocked`) |
+| `reviewer` | Sonnet | Read, Glob, Grep, Bash | project | *(no callers after v2.0.0 scope cut — scheduled for removal in Phase 4)* |
+| `debugger` | Haiku | Read, Glob, Grep, Bash | project | *(no callers after v2.0.0 scope cut — scheduled for removal in Phase 4)* |
 
 All six agents share `agents/_common.md`, an operating constitution (surface assumptions, manage confusion, push back with evidence, enforce simplicity, stop-the-line, commit discipline) that overrides any task-specific instruction it conflicts with.
 
@@ -172,12 +193,7 @@ software-engineer-agent/
 │   ├── sea-quick/SKILL.md         # disable-model-invocation
 │   ├── sea-diagnose/SKILL.md      # auto-invocable
 │   ├── sea-status/SKILL.md        # auto-invocable
-│   ├── sea-roadmap/SKILL.md       # auto-invocable
-│   ├── sea-review/SKILL.md        # auto-invocable
-│   ├── sea-ship/SKILL.md          # disable-model-invocation
-│   ├── sea-debug/SKILL.md         # disable-model-invocation
-│   ├── sea-milestone/SKILL.md     # disable-model-invocation
-│   └── sea-undo/SKILL.md          # disable-model-invocation
+│   └── sea-roadmap/SKILL.md       # auto-invocable
 ├── hooks/
 │   ├── hooks.json                 # SessionStart + Stop + PostToolUse registration
 │   ├── run-hook.cmd               # polyglot cross-platform wrapper
@@ -265,29 +281,29 @@ When you run `/sea-go` on a phase tagged "security hardening":
 
 1. SEA's `planner` agent writes the plan and appends a hand-off note:
    > *Hand-off: this phase benefits from `agent-skills:security-and-hardening` if installed.*
-2. SEA's `executor` agent picks up the plan and starts coding
-3. If `agent-skills` is installed, the security skill auto-triggers when the executor mentions auth / secrets / validation, layering its checklist on top of the execution
-4. SEA's `reviewer` agent runs the 5-axis review with the security axis now informed by the external skill's findings
-5. SEA's auto-QA Stop hook fires, tests pass, phase marked done
+2. SEA's `executor` agent picks up the plan and starts coding.
+3. If `agent-skills` is installed, the security skill auto-triggers when the executor mentions auth / secrets / validation, layering its checklist on top of the execution.
+4. SEA's auto-QA Stop hook fires, tests pass, phase marked done.
+5. After the phase completes, `/sea-go` notes the availability of `agent-skills:code-review` (if installed) in its summary so the user can opt in to a deeper review pass.
 
-None of this requires configuration. The plugins compose via standard skill triggering — SEA orchestrates, the others contribute methodology. Namespaces are separate (`/sea-*` vs `/agent-skills:*` vs `/superpowers:*`), so there are no command conflicts.
+None of this requires configuration. The plugins compose via standard skill triggering — SEA orchestrates, the others contribute methodology. Namespaces are separate (`/sea-*` vs `/agent-skills:*` vs `/superpowers:*`), so there are no command conflicts. v2.0.0 deliberately stopped shipping SEA-owned review/debug/ship commands — the specialized plugins do those jobs better.
 
 ### Why SEA and not one of the others?
 
 They each fill a different slot:
 
 - **Superpowers** is methodology-first — rigid pipeline, strong skill triggering. Great for discipline, but no project analysis, no complexity routing, no cross-phase state, no roadmap. SEA adds the project-manager layer.
-- **GSD** has 20+ commands and a per-workspace config file. SEA ships 11 commands, zero configuration, and leans on Haiku wherever judgment isn't critical.
+- **GSD** has 20+ commands and a per-workspace config file. SEA ships **six** commands (v2.0.0 scope cut), zero configuration, and leans on Haiku wherever judgment isn't critical.
 - **Aperant** is a desktop app with a Kanban UI. SEA stays inside Claude Code — no platform install, no separate UI.
 - **addyosmani/agent-skills** is pure methodology — doesn't know what phase you're in, doesn't track state, doesn't commit atomically. SEA orchestrates; agent-skills teaches the orchestra how to play.
 
-The differentiator SEA alone ships: **project health audit → priority actions → phased roadmap → atomic implementation → auto-QA loop → 5-axis review → pre-ship gate**, all driven by a single `/sea-go` command with zero configuration.
+The differentiator SEA alone ships: **project health audit → priority actions → phased roadmap → atomic implementation → auto-QA loop**, all driven by a single `/sea-go` command with zero configuration. Code review, debugging, and pre-merge gate work are deliberately delegated to composition with the specialized plugins above.
 
 ## Acknowledgments
 
 SEA is built from scratch — every line of code, prompt, and script in this repository is original work. No files were copied from other projects. However, several patterns were studied while designing SEA, and it's intellectually honest to note where ideas came from:
 
-- **[addyosmani/agent-skills](https://github.com/addyosmani/agent-skills)** — the 5-axis code review framework (correctness/readability/architecture/security/performance), the stop-the-line debugging discipline, the Prove-It bug-fix pattern (failing test commit first, then fix), and the pre-ship multi-category checklist concept shaped SEA's `reviewer.md`, `debugger.md`, `executor.md`'s Prove-It rule, and `/sea-ship`. The `agents/_common.md` operating-behaviors constitution (surface assumptions, manage confusion, push back, enforce simplicity, stop-the-line) is modeled on their `using-agent-skills` meta-skill.
+- **[addyosmani/agent-skills](https://github.com/addyosmani/agent-skills)** — the 5-axis code review framework, the stop-the-line debugging discipline, the Prove-It bug-fix pattern (failing test commit first, then fix), and the pre-ship multi-category checklist concept shaped v1.0.0's reviewer/debugger/pre-ship commands and `executor.md`'s Prove-It rule. v2.0.0 removed the SEA-owned review/debug/ship commands in favor of composition with this plugin. The `agents/_common.md` operating-behaviors constitution (surface assumptions, manage confusion, push back, enforce simplicity, stop-the-line) is modeled on their `using-agent-skills` meta-skill.
 - **[anthropics/skills](https://github.com/anthropics/skills)** — the progressive disclosure architecture (SKILL.md + `references/` split), the "pushy description" guidance (Claude tends to under-trigger skills), and the [agentskills.io](https://agentskills.io) spec compliance rules (frontmatter fields, name format, 500-line recommendation) shaped SEA's SKILL.md structure, description rewriting, and CI validation.
 - **[obra/superpowers](https://github.com/obra/superpowers)** — the subagent-driven development pattern and the per-agent `MEMORY.md` convention predate SEA and inform how SEA uses Claude Code's native subagent `memory: project` field.
 

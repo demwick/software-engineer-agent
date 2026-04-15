@@ -18,8 +18,8 @@ A Claude Code native plugin that automates core software engineering responsibil
 ## Repo layout
 
 - `.claude-plugin/plugin.json` — manifest (name, version, license, author, repo)
-- `agents/*.md` — six subagents with YAML frontmatter: `researcher`, `planner`, `executor`, `verifier`, `reviewer`, `debugger` (plus `_common.md`, the shared operating constitution)
-- `skills/*/SKILL.md` — eleven user-facing commands: `sea-init`, `sea-go`, `sea-quick`, `sea-diagnose`, `sea-status`, `sea-roadmap`, `sea-review`, `sea-ship`, `sea-debug`, `sea-milestone`, `sea-undo`
+- `agents/*.md` — six subagents with YAML frontmatter: `researcher`, `planner`, `executor`, `verifier`, `reviewer`, `debugger` (plus `_common.md`, the shared operating constitution). `reviewer` and `debugger` are scheduled for removal in Phase 4 of the v2.0.0 scope cut — they have no callers after Phase 3.
+- `skills/*/SKILL.md` — six user-facing commands (post v2.0.0 scope cut): `sea-init`, `sea-go`, `sea-quick`, `sea-diagnose`, `sea-status`, `sea-roadmap`
 - `hooks/hooks.json` + `hooks/run-hook.cmd` + `hooks/{session-start,auto-qa,state-tracker}` — three hooks, one polyglot wrapper
 - `scripts/detect-test.sh` — auto-detects the project's test runner across 8 ecosystems
 - `docs/STATE.md` — reference for the runtime `.sea/` directory layout

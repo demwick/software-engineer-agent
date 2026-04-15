@@ -1,6 +1,6 @@
 ---
 name: sea-init
-description: Bootstrap a software project with a phased roadmap — works for both blank directories (new MVP from an idea) and existing codebases (analyze gaps, build a completion roadmap). **Use this skill aggressively whenever** the user says any of "let's start", "I have an idea", "build me a X", "analyze this repo", "finish this project", "plan this out", "what should I build next", or whenever no `.sea/` directory exists yet and the user is describing work to do. Also use when the user wants to add a new milestone after a completed MVP (/sea-milestone also handles that). Do not confuse with Claude Code's built-in /init which creates CLAUDE.md — this one creates a phased roadmap and runtime state.
+description: Bootstrap a software project with a phased roadmap — works for both blank directories (new MVP from an idea) and existing codebases (analyze gaps, build a completion roadmap). **Use this skill aggressively whenever** the user says any of "let's start", "I have an idea", "build me a X", "analyze this repo", "finish this project", "plan this out", "what should I build next", or whenever no `.sea/` directory exists yet and the user is describing work to do. For adding a new milestone to a project that already has `.sea/`, prefer `/sea-roadmap add` (it extends the existing roadmap without archiving). Do not confuse with Claude Code's built-in /init which creates CLAUDE.md — this one creates a phased roadmap and runtime state.
 argument-hint: [optional project description or goal]
 disable-model-invocation: true
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash
@@ -25,7 +25,7 @@ Run these checks in order:
 
 1. Is `.sea/` already present? → **state already exists, do NOT overwrite.** Offer the user three paths and stop unless they pick one:
    - **Re-run init** → archive old state to `.sea-archive-<timestamp>/` and start fresh (use when the project direction has fundamentally changed)
-   - **Add a milestone** → run `/sea-milestone "<description>"` instead — preserves history, appends new phases (use when the current milestone shipped and you want a follow-on)
+   - **Add a milestone** → run `/sea-roadmap add "<description>"` instead — preserves history, appends new phases (use when the current milestone shipped and you want a follow-on)
    - **Just check status** → run `/sea-status` (read-only)
 2. Is the current directory effectively empty? (only README, LICENSE, .git, or nothing) → **Mode A: From-Scratch MVP**
 3. Otherwise → **Mode B: Finish Existing Project**
@@ -110,18 +110,17 @@ Also add `.sea/` to `.gitignore` (create the file if missing, append if it's the
 
 ## When NOT to Use
 
-- `.sea/` already exists and the user wants to extend the project → use `/sea-milestone <description>` instead (preserves history)
+- `.sea/` already exists and the user wants to extend the project → use `/sea-roadmap add "<description>"` instead (preserves history)
 - `.sea/` already exists and the user just wants to see status → use `/sea-status`
 - The user only wants a single small fix → use `/sea-quick "<task>"`
 - The user wants to bootstrap CLAUDE.md (Claude Code's built-in metadata) → that's a different built-in `/init`, not this one
-- The user only wants a code review on existing commits → use `/sea-review`
+- The user only wants a code review on existing commits → use an external code-review skill such as `addyosmani/agent-skills:code-review`
 
 ## Related
 
 - `/sea-status` — confirm there's no existing project before running init
 - `/sea-go` — natural next step after init produces the roadmap (run Phase 1)
-- `/sea-milestone` — the right tool when init shouldn't archive existing state
+- `/sea-roadmap` — manual editing of the roadmap init produces (also handles milestone appends via `add`)
 - `/sea-diagnose` — pairs with init Mode B (existing project) to seed the roadmap with prioritized findings
-- `/sea-roadmap` — manual editing of the roadmap init produces
 - **External**: `superpowers:writing-plans` — for an extra-deep planning session on complex MVPs (planner can suggest it)
 - **External**: `agent-skills:idea-refine` — for fuzzy ideas that need divergent/convergent thinking before scaffolding

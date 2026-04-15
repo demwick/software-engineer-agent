@@ -102,7 +102,7 @@ The progress bar is 10 chars: `██████░░░░` style. Round down
 
 - The user wants to *modify* the roadmap → use `/sea-roadmap`
 - The user wants a deep audit (not just the last result) → use `/sea-diagnose`
-- The user wants commit-level review → use `/sea-review`
+- The user wants commit-level review → use an external code-review skill such as `addyosmani/agent-skills:code-review`
 - No `.sea/` exists → tell the user to run `/sea-init` instead of trying to render empty state
 
 ## Related
@@ -110,4 +110,4 @@ The progress bar is 10 chars: `██████░░░░` style. Round down
 - `/sea-go` — natural next action after status confirms there's a pending phase
 - `/sea-roadmap` — when the user wants more than the compact phase list status shows
 - `/sea-diagnose` — refresh the audit if the "Last Diagnose" line is stale or "never run"
-- `/sea-debug` — if the "Last Test Run" line shows a recent failure
+- **External**: `obra/superpowers:debugging` / `addyosmani/agent-skills:debugging` — if the "Last Test Run" line shows a recent failure

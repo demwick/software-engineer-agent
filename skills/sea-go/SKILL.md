@@ -69,7 +69,7 @@ Launch the `executor` agent. Pass it:
 
 Wait for executor to finish. It returns `STATUS: done` or `STATUS: blocked`.
 
-- **blocked** → surface executor's report to the user verbatim, mark the phase `in-progress` in state.json, then suggest `/sea-debug` for structured triage: *"Executor blocked on task N. Run `/sea-debug` to run a 5-phase triage and identify the root cause before retrying."* Stop.
+- **blocked** → surface executor's report to the user verbatim, mark the phase `in-progress` in state.json, and stop. If `obra/superpowers:debugging` or `addyosmani/agent-skills:debugging` is installed, recommend invoking it for structured triage. Otherwise surface the executor's blocked report as-is and let the user decide. SEA does not own debug methodology in v2.0.0 — compose with specialized plugins.
 - **done** → arm auto-QA (next step).
 
 ## Step 6: Arm the Auto-QA Hook
@@ -84,16 +84,9 @@ The `Stop` hook (`hooks/auto-qa`) will detect the marker, run the project's test
 
 For the full protocol — retry counter semantics, host-compat post-check, failure recovery format, test runner detection order — see `references/auto-qa-protocol.md`.
 
-## Step 6.5: Run 5-Axis Review (medium/complex only)
+## Step 6.5: Optional external review (composition)
 
-After auto-QA passes on a **medium** or **complex** phase (trivial phases skip), launch the `reviewer` agent to inspect the phase's commits across correctness, readability, architecture, security, and performance. Do **not** invoke `/sea-review` as a skill — call the reviewer agent directly with the plan's commit range.
-
-Reviewer returns one of three verdicts:
-- **pass** → proceed to Step 7 as normal
-- **warn** → proceed to Step 7, but surface the top 3 important findings to the user in the phase completion report so they know what to clean up next
-- **block** → do NOT mark the phase done. Surface the critical findings, mark the phase `in-progress` in state.json, and tell the user: *"Review blocked the phase. Run `/sea-quick 'fix review finding #N'` or edit directly, then re-run `/sea-go` to continue."*
-
-The reviewer writes `.sea/phases/phase-<N>/review.md` regardless of verdict — it's the permanent review record.
+v2.0.0 removed the internal reviewer in favor of composition. After auto-QA passes, if `addyosmani/agent-skills:code-review` is installed, note its availability in the phase summary report so the user can opt in. Do **not** invoke a reviewer agent directly — SEA no longer owns a reviewer in v2.0.0. If no external review skill is installed, skip this step silently.
 
 ## Step 7: Update State and Report
 
@@ -129,9 +122,9 @@ On verifier success:
 ## When NOT to Use
 
 - No `.sea/` exists yet → use `/sea-init` first
-- All phases are `done` → suggest `/sea-milestone` for a new direction
+- All phases are `done` → suggest `/sea-roadmap add "<next milestone>"` to extend the roadmap
 - The user wants a single small fix that doesn't fit a phase → use `/sea-quick`
-- A phase is currently blocked due to a real failure → use `/sea-debug` to triage first
+- A phase is currently blocked due to a real failure → invoke an external debugging skill (`obra/superpowers:debugging` or `addyosmani/agent-skills:debugging` if installed) to triage first
 - The user only wants to inspect state without advancing → use `/sea-status`
 - The user wants to add or remove phases without running them → use `/sea-roadmap`
 
@@ -139,10 +132,9 @@ On verifier success:
 
 - `/sea-status` — check progress before running this command
 - `/sea-init` — creates the roadmap this command consumes
-- `/sea-debug` — hand-off when this command's executor returns blocked
-- `/sea-review` — auto-runs after auto-QA on medium/complex phases (Step 6.5)
 - `/sea-quick` — for small touchups discovered mid-phase
-- `/sea-undo` — when a completed phase needs rolling back
-- `/sea-ship` — once all phases complete, run before merging
 - **External**: `agent-skills:incremental-implementation` + `agent-skills:test-driven-development` — pair well with the executor when installed
 - **External**: `superpowers:executing-plans` — alternative executor for very long phases
+- **External**: `addyosmani/agent-skills:code-review` — v2.0.0 delegates post-phase review to this skill (see Step 6.5)
+- **External**: `obra/superpowers:debugging` / `addyosmani/agent-skills:debugging` — v2.0.0 delegates blocked-executor triage here (see Step 5)
+- **External**: `addyosmani/agent-skills:shipping` — v2.0.0 delegates pre-merge gate work here

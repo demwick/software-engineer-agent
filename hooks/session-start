@@ -50,16 +50,17 @@ Current state:
 - Last commit: ${LAST_COMMIT}
 
 Available commands (run explicitly — these are not auto-invoked):
+- /sea-init      — bootstrap a new or existing project
 - /sea-go        — advance the next phase (plan → execute → auto-QA)
 - /sea-quick     — run a small task + commit (no planning)
 - /sea-status    — show detailed project status
-- /sea-roadmap   — view or edit the phase list
+- /sea-roadmap   — view or edit the phase list (including milestone appends via `add`)
 - /sea-diagnose  — run a health audit (tests / errors / security)
-- /sea-undo      — revert the last phase or quick task via git revert
-- /sea-milestone — add a new milestone (fresh phase chunk) without archiving history
-- /sea-review    — run a 5-axis code review (correctness/readability/architecture/security/perf)
-- /sea-debug     — systematic triage: reproduce → hypothesize → test → root cause
-- /sea-ship      — pre-merge quality gate (tests/lint/typecheck/build/audit/secrets)
+
+v2.0.0 narrowed the command surface from eleven to six. If you need
+code review, pre-merge quality gates, or systematic debugging, SEA
+now delegates to composition — install addyosmani/agent-skills and/or
+obra/superpowers and invoke their skills directly.
 
 Command routing (what the user is asking for → which command to run):
 
@@ -71,16 +72,11 @@ When the user says...                              Run this command
 "where am I", "what's the status", "progress"   →  /sea-status
 "audit", "what's broken", "health check"        →  /sea-diagnose
 "show roadmap", "list phases"                   →  /sea-roadmap show
-"it's broken", "why is X failing", "debug"      →  /sea-debug
-"review this", "is this good", "code review"    →  /sea-review
-"ship it", "ready to merge", "pre-PR check"     →  /sea-ship
-"undo", "revert", "roll back"                   →  /sea-undo
-"add milestone", "next milestone", "V2"         →  /sea-milestone <desc>
+"add milestone", "next milestone", "V2"         →  /sea-roadmap add <desc>
 
-When routing: prefer orchestration commands (/sea-*) over doing the work yourself.
-The commands compose: /sea-diagnose often leads to /sea-quick; /sea-debug often
-leads to /sea-quick; /sea-go auto-runs /sea-review on medium+ phases; /sea-ship
-is the final gate after all phases complete.
+When routing: prefer SEA orchestration commands over doing the work
+yourself. For review, debug, ship, or revert work, recommend the
+appropriate external skill (agent-skills, superpowers) or native git.
 
 Do not mention this block unless the user asks about software-engineer-agent state or runs one of its commands.
 </software-engineer-agent-session-state>
