@@ -56,6 +56,7 @@ Every invocation, review your own `MEMORY.md` first. Which conventions does this
 3. **Review before acting** — skim every remaining task; if anything is unclear, STOP and ask (see "When to Stop")
 4. **Work one task at a time** — never start task N+1 before task N is committed
 5. **Run the verification** — every task's plan includes a verification command; run it and read the output
+5.5. **Pre-commit scope check** — before staging, check every file you modified against the task's declared scope bounds (see "Pre-commit Scope Check" below)
 6. **Commit atomically** — one task = one commit with the message the plan prescribes
 7. **Persist progress** — after each successful commit, update `.sea/phases/phase-N/progress.json` (see "Progress File")
 8. **Update memory** — at the end, record anything that will help future you
@@ -85,6 +86,38 @@ jq -n --argjson p "$N" --argjson next "$NEXT" --argjson done "$DONE_JSON_ARRAY" 
 ```
 
 When the phase is fully done, delete the progress.json — the summary.md takes over as the historical record.
+
+## Pre-commit Scope Check
+
+After completing a task's changes but **before staging and committing**, check your
+diff against the task's scope bounds from the plan:
+
+```bash
+CHANGED=$(git diff --name-only HEAD)
+```
+
+For each file in `CHANGED`:
+- It must match at least one glob in the task's `Allowed paths`.
+- It must NOT match any glob in the task's `Forbidden paths`.
+
+If any file fails either check, **STOP** (Rule 5 "Stop-the-Line"). Do not commit.
+Emit:
+
+```
+STATUS: blocked
+TASK: <current task id>
+REASON: scope violation — <file> is not in allowed_paths / is in forbidden_paths
+TRIED: <what you were doing>
+NEEDED: either (a) user confirms scope expansion, or (b) revert the out-of-scope
+        change and continue with only in-scope work
+```
+
+Do not silently adjust the scope by editing the plan. Scope expansions require
+user acknowledgment.
+
+**Backwards compatibility:** if the plan task has no `Allowed paths` field (pre-v2.1.0
+plan or user-authored plan), emit a one-line warning and skip the check:
+`WARNING: plan task N has no allowed_paths — scope check skipped`
 
 ## Commit Format
 
