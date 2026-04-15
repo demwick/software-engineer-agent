@@ -112,11 +112,20 @@ This is the permanent record of what was decided at each phase and why.
 - Schema version: v1 → v2 (one-way, idempotent, auto-migrated on first `state-update.sh` touch).
 - Atomic commit count: 8 (hook + skills/protocol doc + eval/test updates + schema bump + migration eval + regression eval + STATE.md docs + this journal update + merge commit)
 
-## Phase 7 — rationale comments (YYYY-MM-DD)
+## Phase 7 — rationale comments (2026-04-15)
 
-- PR: #<number>
-- Files touched: <count>
-- Magic numbers documented or replaced: <list>
+- PR: merged into `main` via `--no-ff` from `refactor/rationale-comments` (single-session mode)
+- Files touched: 5 (`agents/executor.md`, `agents/planner.md`, `agents/researcher.md`, `agents/verifier.md`, `hooks/auto-qa`)
+- Magic numbers documented or replaced:
+  - `agents/executor.md:7` `maxTurns: 30` — YAML-style rationale comment added (typical phase 4–6 tasks × 4 turns + 2–4 retry turns ≈ 22–28, 30 gives headroom).
+  - `agents/planner.md:7` `maxTurns: 20` — rationale: roadmap mode ~8–12, phase plan ~10–15, plus `[[ ASK ]]` clarification cycles.
+  - `agents/researcher.md:7` `maxTurns: 15` — rationale: Haiku, read-only survey, ~5–10 tool calls + 2–4 report turns.
+  - `agents/verifier.md:7` `maxTurns: 12` — rationale: Haiku, one detect-test + one run + verdict, typical 6–8 turns, 12 gives headroom for multi-suite projects.
+  - `hooks/auto-qa` loop-protection threshold `2` — extracted to `MAX_RETRIES=2` at the top of the file, both give-up branches and all three block-decision reason strings now reference the constant via `jq --arg max "$MAX_RETRIES"`.
+  - `hooks/auto-qa` `tail -30` — extracted to `TEST_TAIL_LINES=30` with rationale (fits typical pytest/Jest/Rust traces while staying under Stop hook decision payload budget).
+- Audit grep: `grep -rnE '\b(maxTurns|timeout|retry|retries|ATTEMPTS|MAX_|[0-9]{2,})\b' agents/ hooks/ scripts/` reviewed. Remaining hits are intentional (exit code 10 in `check-host-compat.sh` already documented at file header; archive-state.sh exit 2 also already commented; narrative numbers inside agent prose like "2-5 minute rule" are content, not magic).
+- Atomic commit count: 2 code + 1 journal + 1 merge commit = 4
+- Regression check: `bash evals/run.sh` → 19 passed, 0 failed; `bash tests/run-tests.sh` → 70 passed, 0 failed.
 
 ## Phase 8 — v2.0.0 release (YYYY-MM-DD)
 
