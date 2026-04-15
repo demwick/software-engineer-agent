@@ -11,7 +11,7 @@ All notable changes to `software-engineer-agent` are documented here.
 This project follows [Keep a Changelog](https://keepachangelog.com/) and
 [Semantic Versioning](https://semver.org/).
 
-## [Unreleased] — v2.2.0
+## [2.2.0] — 2026-04-16
 
 ### Added
 - **Iter 4: auto-injection of `_common.md`.** New `hooks/subagent-start`
