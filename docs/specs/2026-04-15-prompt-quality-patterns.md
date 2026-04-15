@@ -496,8 +496,12 @@ Claude Code subagents do not support mid-run user interaction. An executor that 
         "created": "<ISO UTC>"
       }
       ```
-   2. Update `progress.json` to mark task status `gated` (not
-      `completed`, not `in-progress`).
+   2. Update `progress.json`: set `current_task` to the gated task id
+      and leave it out of `completed_tasks[]`. The existence of
+      `gate-pending.json` is the authoritative gated-state signal —
+      `progress.json` carries no per-task status field. (Clarified
+      post-v2.1.0 live validation; earlier spec revisions referred to
+      a literal `gated` status which never landed in the schema.)
    3. Exit with:
       ```
       STATUS: gate

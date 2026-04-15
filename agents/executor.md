@@ -137,8 +137,12 @@ Before starting any task whose id appears in the plan's `risk_gates` section,
    }
    ```
 
-2. Update `progress.json` to mark task status `gated` (not `completed`,
-   not `in-progress`).
+2. Update `progress.json`: set `current_task` to the gated task id and
+   leave the task **out** of `completed_tasks[]`. The existence of
+   `gate-pending.json` is the authoritative signal that the task is
+   paused at a gate — `progress.json` has no per-task status field,
+   so this combination (`current_task == <id>` + task missing from
+   `completed_tasks[]` + marker exists) *is* the "gated" state.
 3. Exit with:
 
    ```
