@@ -2,3 +2,10 @@
 .worktrees/
 .DS_Store
 **/.DS_Store
+
+# claude-charter local layer (not part of SEA plugin)
+.claude/
+scripts/detect-plugin.sh
+scripts/guardrails.sh
+scripts/health.sh
+scripts/prompt-router.sh
