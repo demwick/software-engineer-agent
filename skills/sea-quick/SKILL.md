@@ -7,7 +7,7 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
 <!--
-  software-engineer-agent
+  software-engineer-agents
   Copyright (C) 2026 demwick
   Licensed under the GNU Affero General Public License v3.0 or later.
   See LICENSE in the repository root for the full license text.
@@ -68,7 +68,7 @@ Launch the `executor` agent. Pass it:
 Executor returns `done` or `blocked`.
 
 - **blocked** → surface the report to the user verbatim, stop. Do not retry.
-- **done** → arm auto-QA if the project already has software-engineer-agent state (next step).
+- **done** → arm auto-QA if the project already has software-engineer-agents state (next step).
 
 ## Step 4: Arm the Auto-QA Hook (conditionally)
 
@@ -78,7 +78,7 @@ Only if `.sea/` **already exists** in the project, arm the Stop hook. In v2.0.0 
 : > .sea/.needs-verify
 ```
 
-Do not write a number into the marker. If the project is NOT software-engineer-agent-initialized, skip this — quick tasks never create `.sea/` themselves.
+Do not write a number into the marker. If the project is NOT software-engineer-agents-initialized, skip this — quick tasks never create `.sea/` themselves.
 
 When armed, the Stop hook auto-runs the project's test runner (via `scripts/detect-test.sh`). On pass, it clears the marker and lets Claude stop. On fail, it returns a `block` decision so Claude auto-retries the fix (up to 2 retries).
 

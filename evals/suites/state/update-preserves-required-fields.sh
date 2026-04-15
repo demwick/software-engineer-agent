@@ -12,7 +12,7 @@ WORKDIR="$(fixture_repo empty)"
 fixture_state "$WORKDIR" planning
 trap 'rm -rf "$WORKDIR"' EXIT
 
-bash "$REPO_ROOT/../software-engineer-agent/scripts/state-update.sh" \
+bash "$REPO_ROOT/scripts/state-update.sh" \
     --project-dir "$WORKDIR" last_commit=deadbeef
 
 STATE="$(cat "$WORKDIR/.sea/state.json")"

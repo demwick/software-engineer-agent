@@ -16,7 +16,7 @@ mkdir -p "$WORKDIR/.sea"
 printf 'not valid json' > "$WORKDIR/.sea/state.json"
 
 exit_code=0
-bash "$REPO_ROOT/../software-engineer-agent/scripts/state-update.sh" \
+bash "$REPO_ROOT/scripts/state-update.sh" \
     --project-dir "$WORKDIR" last_commit=deadbeef 2>/dev/null || exit_code=$?
 
 if [[ "$exit_code" -eq 0 ]]; then

@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 #
-# software-engineer-agent
+# software-engineer-agents
 # Copyright (C) 2026 demwick
 # Licensed under the GNU Affero General Public License v3.0 or later.
 # See LICENSE in the repository root for the full license text.
 #
-# PostToolUse hook for software-engineer-agent.
+# PostToolUse hook for software-engineer-agents.
 # Keeps .sea/state.json's last_edit timestamp fresh whenever Claude
-# edits a file in a project that's already initialized with software-engineer-agent.
+# edits a file in a project that's already initialized with software-engineer-agents.
 
 set -euo pipefail
 
@@ -33,7 +33,7 @@ case "$ACTION" in
         ;;
     *)
         # Unknown action — log to stderr (goes to debug log) and exit cleanly.
-        echo "software-engineer-agent state-tracker: unknown action '${ACTION}'" >&2
+        echo "software-engineer-agents state-tracker: unknown action '${ACTION}'" >&2
         ;;
 esac
 

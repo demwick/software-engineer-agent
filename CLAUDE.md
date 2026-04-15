@@ -1,5 +1,5 @@
 <!--
-  software-engineer-agent
+  software-engineer-agents
   Copyright (C) 2026 demwick
   Licensed under the GNU Affero General Public License v3.0 or later.
   See LICENSE in the repository root for the full license text.
@@ -9,7 +9,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-Context for developing the `software-engineer-agent` plugin itself. This file is loaded into every Claude Code session run from inside this repo — keep it short and action-oriented.
+Context for developing the `software-engineer-agents` plugin itself. This file is loaded into every Claude Code session run from inside this repo — keep it short and action-oriented.
 
 ## What this repo is
 
@@ -109,7 +109,7 @@ The plugin exists to drive **other** projects, not to drive its own development.
 - `evals/` covers the deterministic plumbing (hooks, state schema, detect-test, frontmatter) but deliberately skips LLM behavior. A green CI means the plumbing is intact, not that the plugin's agent output is good — use `TESTING.md`'s live-test checklist for that.
 - Live end-to-end evals against a real `claude` CLI are post-V1 (see `docs/specs/2026-04-14-evaluation-layer-design.md` → Follow-Up Work).
 - Marketplace distribution is post-V1. Until then, local `--plugin-dir` is the install path.
-- The `/software-engineer-agent:` namespace prefix is long. Autocomplete makes it tolerable, but a shorter alias could be worth exploring later.
+- The `/software-engineer-agents:` namespace prefix is long. Autocomplete makes it tolerable, but a shorter alias could be worth exploring later.
 
 ## When in doubt
 

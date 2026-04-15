@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 #
-# software-engineer-agent
+# software-engineer-agents
 # Copyright (C) 2026 demwick
 # Licensed under the GNU Affero General Public License v3.0 or later.
 # See LICENSE in the repository root for the full license text.
 #
-# Stop hook for software-engineer-agent.
+# Stop hook for software-engineer-agents.
 # When .sea/.needs-verify exists, runs the project's test runner and
 # reports failures back to Claude so it can auto-retry. Gives up after 2 retries.
 #

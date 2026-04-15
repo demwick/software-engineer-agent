@@ -1,11 +1,11 @@
 <!--
-  software-engineer-agent
+  software-engineer-agents
   Copyright (C) 2026 demwick
   Licensed under the GNU Affero General Public License v3.0 or later.
   See LICENSE in the repository root for the full license text.
 -->
 
-# software-engineer-agent Plugin — Design Document
+# software-engineer-agents Plugin — Design Document
 
 **Status:** Accepted — superseded by `docs/specs/2026-04-15-scope-and-state-refactor.md` for v2.0.0
 **Last updated:** 2026-04-14
@@ -82,7 +82,7 @@ A `SessionStart` hook with `matcher: "startup|resume"` reads `.sea/state.json` a
 ## Directory Layout
 
 ```
-software-engineer-agent/
+software-engineer-agents/
 ├── .claude-plugin/
 │   └── plugin.json
 ├── DESIGN.md                   # this file
@@ -148,6 +148,6 @@ ok=true  → mark phase done, update state, suggest next phase
 
 ## Open Questions
 
-- Plugin name: resolved — shipped as `software-engineer-agent` in v1.0.0 (v2.0.0 keeps the name)
+- Plugin name: resolved — shipped as `software-engineer-agents` in v1.0.0 (v2.0.0 keeps the name)
 - Marketplace distribution: post-V1
 - MCP server: not in V1, optional later

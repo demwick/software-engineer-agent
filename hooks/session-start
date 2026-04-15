@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 #
-# software-engineer-agent
+# software-engineer-agents
 # Copyright (C) 2026 demwick
 # Licensed under the GNU Affero General Public License v3.0 or later.
 # See LICENSE in the repository root for the full license text.
 #
-# SessionStart hook for software-engineer-agent.
+# SessionStart hook for software-engineer-agents.
 # Reads .sea/state.json + roadmap.md from the current project and
 # injects a short summary into Claude's context via hookSpecificOutput.
 
@@ -39,8 +39,8 @@ PHASE_NAME=$(grep -E "^### Phase ${CURRENT}:" "${STATE_DIR}/roadmap.md" 2>/dev/n
 
 # Build the injected context as a here-doc, then escape for JSON.
 CONTEXT=$(cat <<EOF
-<software-engineer-agent-session-state>
-This project is managed by software-engineer-agent (a project completion engine).
+<software-engineer-agents-session-state>
+This project is managed by software-engineer-agents (a project completion engine).
 
 Current state:
 - Mode: ${MODE}
@@ -78,8 +78,8 @@ When routing: prefer SEA orchestration commands over doing the work
 yourself. For review, debug, ship, or revert work, recommend the
 appropriate external skill (agent-skills, superpowers) or native git.
 
-Do not mention this block unless the user asks about software-engineer-agent state or runs one of its commands.
-</software-engineer-agent-session-state>
+Do not mention this block unless the user asks about software-engineer-agents state or runs one of its commands.
+</software-engineer-agents-session-state>
 EOF
 )
 

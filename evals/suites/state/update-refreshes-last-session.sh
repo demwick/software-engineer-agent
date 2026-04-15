@@ -17,7 +17,7 @@ BEFORE="$(jq -r '.last_session' "$WORKDIR/.sea/state.json")"
 # Sleep 1s so the timestamp will differ.
 sleep 1
 
-bash "$REPO_ROOT/../software-engineer-agent/scripts/state-update.sh" \
+bash "$REPO_ROOT/scripts/state-update.sh" \
     --project-dir "$WORKDIR" last_commit=deadbeef
 
 AFTER="$(jq -r '.last_session' "$WORKDIR/.sea/state.json")"

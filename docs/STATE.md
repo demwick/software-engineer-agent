@@ -1,5 +1,5 @@
 <!--
-  software-engineer-agent
+  software-engineer-agents
   Copyright (C) 2026 demwick
   Licensed under the GNU Affero General Public License v3.0 or later.
   See LICENSE in the repository root for the full license text.
@@ -335,7 +335,7 @@ The text below is the original `docs/STATE.md` as shipped in v1.0.0 on 2026-04-1
 
 # State File Layout
 
-This document describes what software-engineer-agent writes inside a project's `.sea/` directory and how each file is used. You don't need to create any of these by hand — `/sea-init` generates them. This doc is the reference when you want to inspect, tweak, or debug state.
+This document describes what software-engineer-agents writes inside a project's `.sea/` directory and how each file is used. You don't need to create any of these by hand — `/sea-init` generates them. This doc is the reference when you want to inspect, tweak, or debug state.
 
 ## Directory Layout
 
@@ -383,7 +383,7 @@ Canonical runtime state. Every command that mutates state updates this file. Sch
 | `total_phases` | `/sea-init`, `/sea-roadmap` | Total phases in the roadmap |
 | `last_session` | `/sea-go` end, `SessionStart` | Last time a command ran |
 | `last_edit` | `PostToolUse` hook (`state-tracker`) | Last time any file was edited in this project by Claude |
-| `last_commit` | `/sea-go` end, `/sea-quick` end | Short SHA of the most recent software-engineer-agent commit |
+| `last_commit` | `/sea-go` end, `/sea-quick` end | Short SHA of the most recent software-engineer-agents commit |
 
 ## `roadmap.md`
 
@@ -531,7 +531,7 @@ The platform loads the first 25KB of each `MEMORY.md` into the corresponding sub
 `/sea-init` appends the following to `.gitignore` if it isn't already there:
 
 ```
-# software-engineer-agent runtime state
+# software-engineer-agents runtime state
 .sea/
 ```
 

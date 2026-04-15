@@ -1,5 +1,5 @@
 <!--
-  software-engineer-agent
+  software-engineer-agents
   Copyright (C) 2026 demwick
   Licensed under the GNU Affero General Public License v3.0 or later.
   See LICENSE in the repository root for the full license text.
@@ -7,9 +7,48 @@
 
 # Changelog
 
-All notable changes to `software-engineer-agent` are documented here.
+All notable changes to `software-engineer-agents` are documented here.
 This project follows [Keep a Changelog](https://keepachangelog.com/) and
 [Semantic Versioning](https://semver.org/).
+
+## [3.0.0] — 2026-04-16
+
+### Changed (BREAKING)
+
+- **Renamed `software-engineer-agent` → `software-engineer-agents`.** The
+  plugin is a multi-subagent system (`researcher`, `planner`, `executor`,
+  `verifier` + `_common.md`), and the singular name under-sold that.
+  The `SEA` abbreviation, the `.sea/` state directory, and the `/sea-*`
+  skill prefix are unchanged.
+- **Plugin manifest.** `.claude-plugin/plugin.json` `name` and
+  `repository` fields updated. GitHub repo renamed to
+  `demwick/software-engineer-agents` (old URL redirects via GitHub).
+- **User-facing slash command namespace.** `/software-engineer-agent:*`
+  → `/software-engineer-agents:*` for every skill (`sea-init`, `sea-go`,
+  `sea-quick`, `sea-diagnose`, `sea-status`, `sea-roadmap`).
+- **SubagentStart hook filter.** `hooks/subagent-start` case branches
+  now match `software-engineer-agents:{researcher,planner,executor,verifier}`.
+  Existing v2.2.0 installs will stop auto-injecting `_common.md` after
+  upgrade until Claude Code reloads the plugin under the new name.
+- Active docs (`README.md`, `DESIGN.md`, `CLAUDE.md`, `TESTING.md`,
+  `docs/STATE.md`, all skill/agent files, scripts, hooks, evals) updated
+  to the plural name. Historical documents under `docs/specs/`,
+  `docs/plans/`, `docs/migration/`, and older `CHANGELOG.md` entries are
+  **intentionally preserved verbatim** — they describe the project as it
+  existed when written and should not be retroactively rewritten.
+
+### Migration
+
+If you had the plugin installed as `software-engineer-agent`, remove it
+and re-install under the new name:
+
+```
+/plugin remove software-engineer-agent
+/plugin add demwick/software-engineer-agents
+```
+
+Local project state (`.sea/state.json`, `.sea/roadmap.md`, phase plans)
+is unaffected — nothing in `.sea/` references the plugin name.
 
 ## [2.2.0] — 2026-04-16
 

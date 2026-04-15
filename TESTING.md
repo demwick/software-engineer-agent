@@ -1,5 +1,5 @@
 <!--
-  software-engineer-agent
+  software-engineer-agents
   Copyright (C) 2026 demwick
   Licensed under the GNU Affero General Public License v3.0 or later.
   See LICENSE in the repository root for the full license text.
@@ -14,7 +14,7 @@ Structural / syntactic checks are already green (JSON parse, bash syntax, frontm
 From the repo root:
 
 ```bash
-claude --plugin-dir /Users/demirel/Projects/Plugins/software-engineer-agent
+claude --plugin-dir /Users/demirel/Projects/Plugins/software-engineer-agents
 ```
 
 Inside the session, confirm discovery:
@@ -23,15 +23,15 @@ Inside the session, confirm discovery:
 /help
 ```
 
-You should see six `software-engineer-agent:*` skills and four agents listed under Agents (run `/agents`).
+You should see six `software-engineer-agents:*` skills and four agents listed under Agents (run `/agents`).
 
-If anything is missing, start with `claude --debug-file /tmp/software-engineer-agent.log --plugin-dir ...` and `tail -f /tmp/software-engineer-agent.log` in another terminal — the debug log shows every hook registration and every skill load.
+If anything is missing, start with `claude --debug-file /tmp/software-engineer-agents.log --plugin-dir ...` and `tail -f /tmp/software-engineer-agents.log` in another terminal — the debug log shows every hook registration and every skill load.
 
 ## 1. Empty project — `/sea-init` Mode A (from-scratch)
 
 ```bash
 mkdir /tmp/pwtest-a && cd /tmp/pwtest-a
-claude --plugin-dir /Users/demirel/Projects/Plugins/software-engineer-agent
+claude --plugin-dir /Users/demirel/Projects/Plugins/software-engineer-agents
 ```
 
 In the session:
@@ -118,7 +118,7 @@ Then:
 
 ```bash
 cd /path/to/some/half-done/project
-claude --plugin-dir /Users/demirel/Projects/Plugins/software-engineer-agent
+claude --plugin-dir /Users/demirel/Projects/Plugins/software-engineer-agents
 ```
 
 ```
@@ -193,11 +193,11 @@ Refuses if Phase 3 is `done`. Otherwise archives `.sea/phases/phase-3/` to `arch
 
 ## 10. `SessionStart` context injection
 
-Close the Claude Code session and restart it in a software-engineer-agent-initialized project:
+Close the Claude Code session and restart it in a software-engineer-agents-initialized project:
 
 ```bash
 cd /tmp/pwtest-a
-claude --plugin-dir /Users/demirel/Projects/Plugins/software-engineer-agent
+claude --plugin-dir /Users/demirel/Projects/Plugins/software-engineer-agents
 ```
 
 At the first prompt:
@@ -208,14 +208,14 @@ where am i?
 
 **Expect:** Claude answers using the session state (mode, active phase, last commit) WITHOUT calling `/sea-status`. That's the injection working — the hook put the state in context before Claude's first turn.
 
-Claude should NOT volunteer this context unless you ask about software-engineer-agent state. Test by starting a normal unrelated conversation ("what is 2+2?") — Claude shouldn't mention the plugin.
+Claude should NOT volunteer this context unless you ask about software-engineer-agents state. Test by starting a normal unrelated conversation ("what is 2+2?") — Claude shouldn't mention the plugin.
 
 ## 11. Superpowers side-by-side
 
 With both plugins loaded:
 
 ```bash
-claude --plugin-dir /Users/demirel/Projects/Plugins/software-engineer-agent
+claude --plugin-dir /Users/demirel/Projects/Plugins/software-engineer-agents
 ```
 
 (Superpowers is already installed user-wide in the test environment.)
@@ -256,13 +256,13 @@ rm -rf /tmp/pwtest-a
 
 ## When something fails
 
-1. `claude --debug-file /tmp/software-engineer-agent.log --plugin-dir ...`
+1. `claude --debug-file /tmp/software-engineer-agents.log --plugin-dir ...`
 2. Reproduce the failure
-3. `tail -100 /tmp/software-engineer-agent.log` — look for `hook`, `skill`, `agent` events
+3. `tail -100 /tmp/software-engineer-agents.log` — look for `hook`, `skill`, `agent` events
 4. For hook failures specifically, pipe fake JSON to the script manually:
    ```bash
-   echo '{}' | CLAUDE_PLUGIN_ROOT=/Users/demirel/Projects/Plugins/software-engineer-agent \
-     bash /Users/demirel/Projects/Plugins/software-engineer-agent/hooks/auto-qa
+   echo '{}' | CLAUDE_PLUGIN_ROOT=/Users/demirel/Projects/Plugins/software-engineer-agents \
+     bash /Users/demirel/Projects/Plugins/software-engineer-agents/hooks/auto-qa
    echo "exit=$?"
    ```
 5. For agent failures: launch the agent directly from Claude Code (`Use the planner agent to ...`) and see what it does with a minimal prompt.

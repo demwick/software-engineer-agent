@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 #
-# software-engineer-agent
+# software-engineer-agents
 # Copyright (C) 2026 demwick
 # Licensed under the GNU Affero General Public License v3.0 or later.
 # See LICENSE in the repository root for the full license text.
 #
-# SubagentStart hook for software-engineer-agent.
+# SubagentStart hook for software-engineer-agents.
 #
 # Auto-injects agents/_common.md (the shared Operating Behaviors) into
 # every SEA subagent's launch context, so the rules become a structural
@@ -16,7 +16,7 @@
 # semantics for SubagentStart matchers are not formally documented
 # (see anthropics/claude-code#19170). This hook instead filters on
 # the stdin payload's agent_type field, which the runtime sets to
-# "<plugin-name>:<agent-name>" (e.g. "software-engineer-agent:researcher").
+# "<plugin-name>:<agent-name>" (e.g. "software-engineer-agents:researcher").
 # Only SEA agents get the injection; other plugins' subagents are
 # untouched.
 #
@@ -49,16 +49,16 @@ command -v jq >/dev/null 2>&1 || emit_empty
 
 # Read stdin payload. The SubagentStart event includes fields:
 #   session_id, transcript_path, cwd, agent_id, agent_type, hook_event_name
-# agent_type is plugin-qualified: "software-engineer-agent:researcher".
+# agent_type is plugin-qualified: "software-engineer-agents:researcher".
 STDIN_PAYLOAD="$(cat 2>/dev/null || echo '{}')"
 AGENT_TYPE="$(printf '%s' "$STDIN_PAYLOAD" | jq -r '.agent_type // empty' 2>/dev/null || true)"
 
 # Filter: only SEA subagents get the injection.
 case "$AGENT_TYPE" in
-    software-engineer-agent:researcher|\
-    software-engineer-agent:planner|\
-    software-engineer-agent:executor|\
-    software-engineer-agent:verifier) ;;
+    software-engineer-agents:researcher|\
+    software-engineer-agents:planner|\
+    software-engineer-agents:executor|\
+    software-engineer-agents:verifier) ;;
     *) emit_empty ;;
 esac
 

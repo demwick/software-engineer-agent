@@ -1,5 +1,5 @@
 <!--
-  software-engineer-agent
+  software-engineer-agents
   Copyright (C) 2026 demwick
   Licensed under the GNU Affero General Public License v3.0 or later.
   See LICENSE in the repository root for the full license text.
@@ -9,7 +9,7 @@
 
 > A Claude Code plugin that automates the core responsibilities of a software engineer.
 
-`software-engineer-agent` is a Claude Code native plugin that takes on the day-to-day work of a software engineer. It doesn't just write code — it designs, plans, implements, tests, reviews, debugs, and documents, driven by a single command you run when you want the project to move forward.
+`software-engineer-agents` is a Claude Code native plugin that takes on the day-to-day work of a software engineer. It doesn't just write code — it designs, plans, implements, tests, reviews, debugs, and documents, driven by a single command you run when you want the project to move forward.
 
 ## Software engineer responsibilities → plugin mapping
 
@@ -37,7 +37,7 @@
 ### From a local directory (development)
 
 ```bash
-claude --plugin-dir /path/to/software-engineer-agent
+claude --plugin-dir /path/to/software-engineer-agents
 ```
 
 Loads the plugin for the current session. Ideal while iterating on the plugin itself.
@@ -45,19 +45,19 @@ Loads the plugin for the current session. Ideal while iterating on the plugin it
 ### From the GitHub repo
 
 ```bash
-git clone https://github.com/demwick/software-engineer-agent
-claude --plugin-dir ./software-engineer-agent
+git clone https://github.com/demwick/software-engineer-agents
+claude --plugin-dir ./software-engineer-agents
 ```
 
 ### From a marketplace (post-V1)
 
 ```bash
-claude plugin install software-engineer-agent@<marketplace>
+claude plugin install software-engineer-agents@<marketplace>
 ```
 
 ## Commands
 
-All commands live under the `software-engineer-agent:` namespace. Type `/` in Claude Code to see them.
+All commands live under the `software-engineer-agents:` namespace. Type `/` in Claude Code to see them.
 
 | Command | What it does | Side-effects? | Model-invocable? |
 |---------|-------------|---------------|------------------|
@@ -186,7 +186,7 @@ See [`docs/STATE.md`](docs/STATE.md) for the full file layout and schemas. See [
 ## Directory layout
 
 ```
-software-engineer-agent/
+software-engineer-agents/
 ├── .claude-plugin/plugin.json     # manifest
 ├── CLAUDE.md                      # context for developing the plugin itself
 ├── DESIGN.md                      # architectural decisions and rationale
@@ -243,7 +243,7 @@ SEA is an **orchestration layer** — state, roadmap, atomic commits, auto-QA lo
 
 ```
 ┌────────────────────────────────────────────────────────────────┐
-│  software-engineer-agent  (you are here)                       │
+│  software-engineer-agents  (you are here)                       │
 │  ORCHESTRATION: state machine, phases, auto-QA, review, ship   │
 │  "what to do next, in what order, atomically committed"        │
 └────────────────────────────────────────────────────────────────┘
@@ -273,7 +273,7 @@ SEA is an **orchestration layer** — state, roadmap, atomic commits, auto-QA lo
 
 ```bash
 # Core orchestration
-claude --plugin-dir /path/to/software-engineer-agent
+claude --plugin-dir /path/to/software-engineer-agents
 
 # Methodology library (recommended pairing)
 /plugin marketplace add addyosmani/agent-skills
@@ -325,8 +325,8 @@ If you notice a pattern in SEA that's missing attribution above, open an issue �
 
 ## Contributing
 
-1. Clone the repo: `git clone https://github.com/demwick/software-engineer-agent`
-2. Load locally: `claude --plugin-dir /path/to/software-engineer-agent`
+1. Clone the repo: `git clone https://github.com/demwick/software-engineer-agents`
+2. Load locally: `claude --plugin-dir /path/to/software-engineer-agents`
 3. Make changes to skills, agents, or hooks
 4. Run `/reload-plugins` inside Claude Code to pick them up without restarting
 5. Test against a throwaway project (a fresh directory is easiest — use the `TESTING.md` checklist)
@@ -334,7 +334,7 @@ If you notice a pattern in SEA that's missing attribution above, open an issue �
 When debugging hooks:
 
 ```bash
-claude --debug-file /tmp/sea.log --plugin-dir /path/to/software-engineer-agent
+claude --debug-file /tmp/sea.log --plugin-dir /path/to/software-engineer-agents
 # in another terminal:
 tail -f /tmp/sea.log
 ```
