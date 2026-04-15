@@ -128,8 +128,8 @@ assert_contains "valid JSON output" "$out" '"hookEventName":"SessionStart"'
 assert_contains "mode in context" "$out" "from-scratch"
 assert_contains "Phase 2 of 5" "$out" "Phase 2 of 5"
 assert_contains "command routing block injected" "$out" "Command routing"
-assert_contains "routing mentions sea-debug" "$out" "/sea-debug"
-assert_contains "routing mentions sea-ship" "$out" "/sea-ship"
+assert_contains "routing mentions sea-go" "$out" "/sea-go"
+assert_contains "routing mentions sea-roadmap" "$out" "/sea-roadmap"
 
 cd "$REPO_ROOT"
 
