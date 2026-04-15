@@ -98,3 +98,30 @@ should enforce it at the task boundary too.
   re-stage, create a new commit.
 - **Never commit secrets.** If a diff contains an API key, token,
   credential, or `.env` value, stop and report.
+
+## 7. Evidence-Bearing Exit Reports
+
+When you report `STATUS: done`, `STATUS: blocked`, or any claim of
+the form "I verified X" / "X works" / "X passes", include the actual
+command(s) run and their output, not a paraphrase.
+
+**Bad:**  "Tests pass."
+**Good:** `pytest tests/ -v → 47 passed in 2.1s`
+
+**Bad:**  "Build succeeded."
+**Good:** `npm run build → Compiled in 3.2s, bundle 142 KiB`
+
+**Bad:**  "Reviewed for security."
+**Good:** `grep -rn 'eval\|exec\|innerHTML' src/ → no matches`
+
+**Bad:**  "The migration worked."
+**Good:** `cat .sea/state.json | jq .schema_version → 2`
+
+A claim without the command and its output is an **assertion**; a
+claim with them is **verifiable**. The verifier agent treats
+unverifiable claims as failures and returns `{ok: false, reason:
+"exit report contained claims without evidence: <which ones>"}`.
+
+This rule does not replace the Prove-It pattern (`executor.md:73-98`)
+for bug fixes. Prove-It is the stricter rule for its specific
+trigger; Rule 7 is the baseline rule for every other claim.

@@ -11,6 +11,23 @@ All notable changes to `software-engineer-agent` are documented here.
 This project follows [Keep a Changelog](https://keepachangelog.com/) and
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased] — v2.1.0
+
+### Added
+- `_common.md` Rule 7 (Evidence-Bearing Exit Reports): every agent's exit report
+  must include actual command output, not a paraphrase.
+- Step 0 (Demonstrate Comprehension) in `researcher.md`, `planner.md`, `executor.md`:
+  agents state task understanding in structured `UNDERSTOOD:` format before any tool call.
+- `evals/suites/agents/prompt-quality.sh`: structural regression protection for both
+  additions (Rule 7 presence, Step 0 presence, verifier exclusion).
+- Per-task `Allowed paths` / `Forbidden paths` fields in `planner.md` Mode B plan schema.
+- Pre-commit scope check (Step 5.5) in `executor.md`: detects out-of-scope files before
+  committing; emits `STATUS: blocked` with scope-violation reason.
+- `evals/fixtures/plans/sample-plan-with-scope.md`: fixture plan demonstrating scope bounds.
+- `evals/suites/agents/scope-creep-detection.sh`: structural simulation of scope-violation
+  detection logic.
+- `evals/suites/agents/prompt-quality.sh` extended with scope-bound assertions.
+
 ## [2.0.0] — 2026-04-15
 
 v2.0.0 is a disciplined scope cut and state-model consolidation driven
