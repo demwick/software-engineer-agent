@@ -137,6 +137,25 @@ The inventory table above is the index. The per-file sections below answer four 
 - **Missing:** normal for a fresh phase (nothing started yet) or a completed phase (deleted at phase end). `/sea-go` interprets "missing" as "start at task 1".
 - **Corrupted:** `/sea-go` and the executor refuse to parse non-JSON and fall back to "start at task 1". Silent data loss risk: if `completed_tasks[]` is lost, the executor re-runs tasks — benign because each task is an atomic, idempotent commit-or-skip, but worth flagging.
 
+### `phases/phase-N/gate-pending.json` (new in v2.1.0)
+
+- **Writer(s):** `agents/executor.md` when a task whose id appears in the plan's `risk_gates` section is reached. Executor writes this file, marks the task `gated` in `progress.json`, and exits with `STATUS: gate`.
+- **Reader(s):** `skills/sea-go/SKILL.md` (Step 5 "Resume after gate" branch) reads the marker to surface the confirmation prompt to the user. Deleted by the executor on the next invocation once "gate resumed" context is passed in.
+- **Format:**
+  ```json
+  {
+    "phase": <N>,
+    "task": <task id>,
+    "kind": "<gate kind>",
+    "confirmation_prompt": "<text from plan>",
+    "created": "<ISO UTC>"
+  }
+  ```
+- **Required fields:** all of the above. Missing `kind` or `confirmation_prompt` is treated as a corrupt marker by `/sea-go`, which falls back to re-reading the plan's `risk_gates` section.
+- **Invariants:** exists **iff** the executor exited with `STATUS: gate` and has not yet been re-launched with a resume context. Clearing on resume is the executor's responsibility; manual deletion unblocks the phase at the user's risk.
+- **Missing:** normal in every phase where no gate has been hit. A missing marker after a `STATUS: gate` exit is an anomaly — `/sea-go` re-reads the plan and re-surfaces the gate from `risk_gates` directly.
+- **Corrupted:** `/sea-go` refuses to auto-confirm; surfaces the plan's `risk_gates` entry and asks the user to confirm from the plan text instead of the marker.
+
 ### `phases/phase-N/summary.md`
 
 - **Writer(s):** `skills/sea-go/SKILL.md:110` writes the summary when the phase completes successfully.
