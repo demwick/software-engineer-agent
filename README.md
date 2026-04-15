@@ -111,6 +111,19 @@ Commands with real side-effects (`init`, `go`, `quick`) are **user-invocable onl
 → executor runs, commits, auto-QA runs the test suite, done
 ```
 
+**Adding a milestone after the MVP shipped:**
+
+```
+/sea-roadmap add "V2: add a FastAPI web UI on top of the existing CLI"
+→ skill detects that every existing phase is done, switches to the
+  milestone workflow, asks 2–3 clarifying questions, calls the planner
+  to draft 3 new phases, inserts a "Milestone 2" boundary marker in
+  roadmap.md, bumps total_phases and current_milestone in state.json
+
+/sea-go
+→ starts Phase N+1 of the new milestone
+```
+
 ## Migration from v1.x
 
 v2.0.0 deleted five commands whose methodology is better served by

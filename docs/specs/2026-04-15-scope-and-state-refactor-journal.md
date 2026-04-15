@@ -70,12 +70,21 @@ This is the permanent record of what was decided at each phase and why.
 - README/CLAUDE.md updates: agent table trimmed to four rows + a composition note; directory layout skills listing; Migration from v1.x expanded to note the Phase 4 file-level deletion; CLAUDE.md repo layout bullets flipped from six subagents to four.
 - Atomic commit count: 3 (2 deletions + 1 docs)
 
-## Phase 5 — roadmap absorbs milestone (YYYY-MM-DD)
+## Phase 5 — roadmap absorbs milestone (2026-04-15)
 
-- PR: #<number>
-- Milestone functionality covered: <list>
-- Functionality dropped (if any): <list with reasons>
-- Live test against throwaway project: <pass / fail>
+- PR: merged into `main` via `--no-ff` from `refactor/roadmap-absorbs-milestone` (single-session mode)
+- Milestone functionality covered (moved from the deleted `/sea-milestone` SKILL.md into a new "Adding a milestone to a completed project" section in sea-roadmap/SKILL.md):
+  - Precondition check (state.json + roadmap.md must exist — already part of sea-roadmap's Step 1)
+  - 2–3 clarifying questions via AskUserQuestion (goal, builds-on, stack additions, scope boundary)
+  - planner agent Mode A invocation with existing-roadmap context, instruction to output only new phases starting at LAST+1, 1–5 phases
+  - Milestone boundary marker insertion into roadmap.md, including retro-marking of existing phases as Milestone 1 on first use
+  - state.json update via scripts/state-update.sh with current_phase, total_phases, and the new optional current_milestone field
+  - Summary handoff message
+  - Milestone rules (never archive, no renumbering, planning-only, one milestone per invocation, scope discipline)
+- Functionality dropped: none. Every step of the deleted skill is documented in the new section.
+- Live test against throwaway project: **skipped** — this is a single-session run of the whole refactor and no throwaway project is available to exercise the full planner flow. The section is a prompt-engineering change only; it will be validated live when the user runs /sea-roadmap add "..." against a real completed project after v2.0.0 ships. Evals and tests stayed green.
+- README update: new "Adding a milestone after the MVP shipped" example in the Typical workflows section.
+- Atomic commit count: 2 (1 feat + 1 docs)
 
 ## Phase 6 — state consolidation (YYYY-MM-DD)
 

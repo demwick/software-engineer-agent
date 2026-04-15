@@ -87,6 +87,121 @@ Show a diff of the old order vs new order and ask for confirmation before writin
 
 Just change the `### Phase N: <name>` header line. No confirmation needed — it's cosmetic.
 
+## Adding a milestone to a completed project
+
+v2.0.0 removed the standalone `/sea-milestone` skill and folded its
+functionality here. When every existing phase is `done` and the user
+describes a new direction — "V2 of this", "add a web UI", "extend the
+MVP with feature X", "next chunk", "migrate to Postgres" — treat the
+`add` verb as a **milestone append**, not a bare template insert. The
+workflow differs from the plain `add` in three ways: it calls the
+planner, it marks milestone boundaries in the roadmap, and it updates
+an extra state field.
+
+### Milestone workflow (when to use instead of the plain `add` template)
+
+Trigger this flow when any of these is true:
+
+- Every phase in `roadmap.md` has status `done` AND the user is
+  describing new work that is not a single-phase fix.
+- The user explicitly says "milestone", "V2", "next chunk",
+  "extend the roadmap", or "plan the next <multi-phase> thing".
+- The description is too big for one phase — it would touch several
+  subsystems, add a new runtime / service / stack component, or
+  span 2–5 phases of planned work.
+
+If the work genuinely fits one phase, stick with the plain `add`
+template above — milestones are about multi-phase chunks, not single
+appends.
+
+### Milestone steps
+
+1. **Clarify the milestone.** Ask the user 2–3 quick questions, one
+   topic at a time (use `AskUserQuestion` when available):
+   - What's the goal of this milestone in one sentence?
+   - Which existing code does it build on vs. replace?
+   - Any stack additions (new dependency, service, runtime)?
+   - Scope boundary — what's explicitly NOT in this milestone?
+
+   If the `add` argument already answers some of these, skip them.
+
+2. **Let the planner draft the new phases.** Launch the `planner`
+   agent in **Mode A (Roadmap Planning)** with:
+   - The existing roadmap as context (so it does not duplicate
+     earlier phases)
+   - The clarified milestone goal and scope
+   - Instruction: *"Output only the new phases — do not restate
+     prior phases. Phase numbers start at `<LAST+1>` where `LAST`
+     is the current highest phase number. 1–5 phases. Each phase:
+     goal, scope, deliverable, depends-on. Format as markdown
+     matching the existing roadmap."*
+
+   Planner returns a block of new phase entries.
+
+3. **Insert a milestone boundary marker in `roadmap.md`.** If the
+   roadmap has no explicit milestone marker yet, retro-mark the
+   existing phases as Milestone 1 by inserting this block above
+   Phase 1:
+
+   ```markdown
+   ## Milestone 1: <mode-derived name, e.g. "MVP">
+   Started: <created timestamp from state.json>
+   ```
+
+   Then, above the new phase block, add the new milestone marker:
+
+   ```markdown
+   ---
+
+   ## Milestone <N+1>: <short name>
+   Started: <ISO date>
+   Goal: <one sentence>
+   ```
+
+   Append the planner's new phase block beneath this new milestone
+   header. Preserve every earlier phase verbatim — do not renumber,
+   do not remove, do not retouch existing status lines.
+
+4. **Update `state.json` via the helper.** Never raw-write state:
+
+   ```bash
+   bash "${CLAUDE_PLUGIN_ROOT}/scripts/state-update.sh" \
+       current_phase=<LAST+1> \
+       total_phases=<LAST + new_phase_count> \
+       current_milestone=<N+1>
+   ```
+
+   `current_milestone` is added as an optional field the first
+   time a milestone workflow runs — `state-update.sh` treats unknown
+   keys permissively and preserves `schema_version`, `mode`, and
+   `created` as usual.
+
+5. **Print a short summary and hand off:**
+
+   ```
+   Milestone <N+1> added: "<goal>"
+   - New phases: <LAST+1> ... <LAST+count>
+   - Total phases: <new total>
+   - Plan files: not yet written — /sea-go will generate them per phase
+
+   Run /sea-go when ready to start Phase <LAST+1>.
+   ```
+
+### Milestone rules
+
+- **Never archive or overwrite existing phases.** Unlike `/sea-init`,
+  the milestone flow always preserves history. Done phases stay done.
+- **Do not renumber existing phases.** New phases continue from
+  `LAST+1`.
+- **Do not call the executor.** The milestone flow is planning-only.
+- **Do not auto-commit.** Roadmap edits are runtime state.
+- **One milestone per invocation.** If the user describes two
+  directions, ask which one to tackle first and defer the other to
+  a second call.
+- **Respect scope discipline.** If the described work is actually a
+  single fix, suggest `/sea-quick` and stop. If it is bigger than
+  ~5 phases, suggest splitting into two milestones and stop.
+
 ## Step 3: After Any Edit
 
 - Re-read the roadmap to make sure the file is still well-formed.
