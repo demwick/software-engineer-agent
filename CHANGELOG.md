@@ -11,7 +11,14 @@ All notable changes to `software-engineer-agent` are documented here.
 This project follows [Keep a Changelog](https://keepachangelog.com/) and
 [Semantic Versioning](https://semver.org/).
 
-## [Unreleased] — v2.1.0
+## [2.1.0] — 2026-04-15
+
+Prompt-quality patterns release. Installs Demonstrate Comprehension
+(Step 0), Evidence-Bearing Exit Reports (Rule 7), per-task scope
+bounds, and per-plan risk gates across the planner/executor/sea-go
+stack. Iteration 3 risk-gate state machine validated end-to-end against
+a real `claude --plugin-dir` session on 2026-04-15 (two gate pause +
+resume cycles, marker round-trip, cancel path).
 
 ### Added
 - `_common.md` Rule 7 (Evidence-Bearing Exit Reports): every agent's exit report
@@ -45,12 +52,6 @@ This project follows [Keep a Changelog](https://keepachangelog.com/) and
   gate-pending marker round-trip; does not run a real executor.
 - `evals/suites/agents/prompt-quality.sh` extended with risk-gate
   assertions (planner, executor, sea-go).
-
-### Pending (Iter 3)
-- **Live end-to-end validation required before merge.** Iteration 3 may
-  not ship without a successful `claude --plugin-dir` run against a
-  throwaway repo containing one risk gate, confirming executor pauses,
-  sea-go surfaces the prompt, and the resume path works end-to-end.
 
 ## [2.0.0] — 2026-04-15
 
