@@ -4,6 +4,11 @@ description: Verifies that work done by the executor matches the plan and that t
 model: haiku
 tools: Read, Glob, Grep, Bash
 memory: project
+# maxTurns rationale: fast-turn verifier on Haiku — one detect-test
+# invocation, one test run, one structured verdict report. ~6–8
+# turns is typical; 12 gives headroom for multi-suite projects (unit
+# + integration + lint) without letting a broken verifier prompt loop.
+# Loop protection in hooks/auto-qa pairs with this cap.
 maxTurns: 12
 color: yellow
 ---

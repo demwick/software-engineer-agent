@@ -4,6 +4,10 @@ description: Produces task and phase plans. Turns research findings or user inte
 model: sonnet
 tools: Read, Glob, Grep, Bash, WebFetch
 memory: project
+# maxTurns rationale: planning-only agent, two modes (roadmap ~8–12
+# turns, phase plan ~10–15 turns) plus [[ ASK ]] clarification back-
+# and-forths. 20 is comfortable headroom without enabling runaway
+# plan-rewrite loops. Raise in 5-turn steps if a real MVP blows it.
 maxTurns: 20
 color: blue
 ---

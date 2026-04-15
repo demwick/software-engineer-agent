@@ -4,6 +4,11 @@ description: Implements the tasks in a plan file. Writes code, runs tests, commi
 model: sonnet
 tools: Read, Write, Edit, Glob, Grep, Bash, WebFetch
 memory: project
+# maxTurns rationale: a typical phase has 4–6 tasks × ~4 turns per task
+# (read plan, edit, test, commit) + 2–4 retry turns for auto-QA fixes
+# = ~22–28 turns. 30 leaves headroom without allowing runaway loops.
+# If this proves too tight on complex phases, raise in 10-turn steps
+# and update this comment with the new rationale.
 maxTurns: 30
 color: green
 ---

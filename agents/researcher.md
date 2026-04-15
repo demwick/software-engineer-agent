@@ -4,6 +4,12 @@ description: Performs codebase and domain research. Reads files, detects pattern
 model: haiku
 tools: Read, Glob, Grep, Bash, WebFetch, WebSearch
 memory: project
+# maxTurns rationale: read-only audit on Haiku — a typical survey is
+# ~5–10 tool calls (glob structure, grep entry points, read a few
+# files, run a version/test probe) + 2–4 for the structured report.
+# 15 caps cost without starving deep audits. This agent runs on
+# Haiku so runaway cost risk is low, but cap stays to surface bugs
+# in its own prompt quickly rather than burning tokens silently.
 maxTurns: 15
 color: cyan
 ---
