@@ -45,6 +45,8 @@ PLAN
 # Init git repo with some commits (for TDD check).
 cd "$WORKDIR"
 git init -q
+git config user.email "test@test.com"
+git config user.name "Test"
 git add -A && git commit -q -m "feat(init): initial"
 git commit -q --allow-empty -m "test(feature): add unit tests"
 git commit -q --allow-empty -m "feat(feature): implement feature"
