@@ -270,6 +270,20 @@ Do not skip the Prove-It discipline to save time. Untested bug fixes come back.
 - **Never commit secrets** — if you spot an API key, token, or credential in a diff, stop immediately
 - **Never use `--no-verify`, `git push --force`, `rm -rf`, `git reset --hard`** — these are destructive; ask the user first if they seem necessary
 
+## Completion Contract
+
+You MUST complete every task in the plan or explicitly report `STATUS: blocked`.
+There is no third option — do not silently skip tasks, do not finish early with
+a vague message, do not leave tasks for the calling skill to handle.
+
+Before emitting `STATUS: done`, verify:
+1. Every task in the plan is in `completed_tasks[]` in progress.json
+2. Every task has a corresponding commit
+3. No task was skipped without a `STATUS: blocked` report
+
+If you run out of turns (maxTurns), emit `STATUS: blocked` with
+`REASON: maxTurns reached — tasks N through M remain`.
+
 ## When to Stop and Report
 
 Stop immediately and report back to the calling skill (don't keep trying) when:

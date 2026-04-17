@@ -108,7 +108,17 @@ Wait for executor to finish. It returns `STATUS: done`, `STATUS: blocked`, or `S
 
 - **blocked** → surface executor's report to the user verbatim, mark the phase `in-progress` in state.json, and stop. If `obra/superpowers:debugging` or `addyosmani/agent-skills:debugging` is installed, recommend invoking it for structured triage. Otherwise surface the executor's blocked report as-is and let the user decide. SEA does not own debug methodology in v2.0.0 — compose with specialized plugins.
 - **gate** → run "Resume after gate" (below), then re-launch executor.
-- **done** → arm auto-QA (next step).
+- **done** → verify completeness before arming auto-QA (next step).
+- **ambiguous / no STATUS line** → treat as `blocked`. Read `progress.json` to check which tasks are done. If tasks remain incomplete, surface: *"Executor finished without a clear STATUS. Tasks <list> may be incomplete. Re-run `/sea-go` to resume, or `/sea-quick` to finish individual tasks."* Do NOT attempt to complete remaining tasks yourself — only the executor agent writes code.
+
+### Post-executor completeness check
+
+After `STATUS: done`, read `.sea/phases/phase-N/progress.json`. Compare
+`completed_tasks[]` against the plan's task list. If any task is missing:
+
+- Surface to the user: *"Executor reported done but tasks <missing> are not in completed_tasks. Re-launching executor to finish."*
+- Re-launch executor with resume context pointing to the first missing task.
+- If the second attempt also leaves tasks incomplete, stop and report as blocked.
 
 ### Resume after gate
 
@@ -193,12 +203,25 @@ bash "${CLAUDE_PLUGIN_ROOT}/hooks/state-tracker" verification-feedback
 
 On verification pass (or no verification file):
 
-1. Update `.sea/state.json` via the `state-update.sh` helper — **never write state.json directly with Write/Edit**. The helper jq-merges, preserves required fields (`schema_version`, `mode`, `created`), auto-refreshes `last_session`, and validates the result:
+1. Update `.sea/state.json` via the `state-update.sh` helper — **never write state.json directly with Write/Edit**. The helper jq-merges, preserves required fields (`schema_version`, `mode`, `created`), auto-refreshes `last_session`, and validates the result.
+
+   **Phase overflow guard:** if this is the last phase (N == total_phases), do NOT
+   increment `current_phase` past `total_phases`. Set `current_phase` to `total_phases`
+   and add `completed=true` to signal the project is done:
+
    ```bash
-   bash "${CLAUDE_PLUGIN_ROOT}/scripts/state-update.sh" \
-       current_phase=<N+1> \
-       last_commit=<short-sha-of-HEAD>
+   if [ "$N" -ge "$TOTAL_PHASES" ]; then
+       bash "${CLAUDE_PLUGIN_ROOT}/scripts/state-update.sh" \
+           current_phase="$TOTAL_PHASES" \
+           completed=true \
+           last_commit=<short-sha-of-HEAD>
+   else
+       bash "${CLAUDE_PLUGIN_ROOT}/scripts/state-update.sh" \
+           current_phase=$((N+1)) \
+           last_commit=<short-sha-of-HEAD>
+   fi
    ```
+
    Pass any additional fields as extra `KEY=VALUE` args. JSON-parseable values (numbers, booleans, arrays) keep their type; everything else becomes a string.
 2. Update `.sea/roadmap.md`: mark Phase N as `done`.
 3. Write a short summary to `.sea/phases/phase-N/summary.md`:
