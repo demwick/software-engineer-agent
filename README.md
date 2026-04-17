@@ -15,26 +15,26 @@
 
 ## What it does
 
-| Responsibility | How |
-|---|---|
-| **System design** | Analyzes your project, picks the right approach, splits the MVP into phases |
-| **Planning** | Produces atomic, verifiable task plans with explicit dependencies |
-| **Implementation** | Writes code phase by phase, one atomic commit per task |
-| **Testing & QA** | Auto-runs your test suite after every change — blocks on failure, auto-fixes, retries |
-| **Debugging** | Health audit with prioritized, actionable findings |
-| **Documentation** | Each agent builds and maintains its own memory across sessions |
+| Responsibility     | How                                                                                   |
+| ------------------ | ------------------------------------------------------------------------------------- |
+| **System design**  | Analyzes your project, picks the right approach, splits the MVP into phases           |
+| **Planning**       | Produces atomic, verifiable task plans with explicit dependencies                     |
+| **Implementation** | Writes code phase by phase, one atomic commit per task                                |
+| **Testing & QA**   | Auto-runs your test suite after every change — blocks on failure, auto-fixes, retries |
+| **Debugging**      | Health audit with prioritized, actionable findings                                    |
+| **Documentation**  | Each agent builds and maintains its own memory across sessions                        |
 
 ---
 
 ## Three modes
 
-**From scratch** — *"I want to build a SaaS app"*
+**From scratch** — _"I want to build a SaaS app"_
 Clarifies the idea, scaffolds the project, splits the MVP into 3–7 phases, drives each through plan → implement → QA.
 
-**Finish an existing project** — *"I have a half-done repo"*
+**Finish an existing project** — _"I have a half-done repo"_
 Analyzes the codebase, finds the gaps, builds a completion roadmap, closes them phase by phase.
 
-**Single task** — *"Fix that button"*
+**Single task** — _"Fix that button"_
 Straight to execute and commit. No planning overhead.
 
 ---
@@ -43,31 +43,35 @@ Straight to execute and commit. No planning overhead.
 
 Every phase runs a **PDCA (Plan-Do-Check-Act) macro-cycle** driven by four specialist agents. Inside each task, the executor enforces a **TDD (Test-Driven Development) micro-cycle** — no exceptions.
 
-```mermaid
-flowchart LR
-    subgraph phase ["/sea-go — one phase"]
-        direction LR
-        planner["🗂️ planner\nspec + plan.md"]
-        executor["⚙️ executor\ntask loop"]
-        verifier["🔍 verifier\nStop hook\npass ✓ / fail → retry"]
-        feedback["📊 feedback\n→ next phase"]
-
-        planner -- "PLAN" --> executor
-        executor -- "DO" --> verifier
-        verifier -- "CHECK → ACT" --> feedback
-        verifier -. "fail" .-> executor
-    end
-
-    subgraph tdd ["TDD micro-cycle (per task)"]
-        direction TB
-        red["🔴 Red\nwrite failing test"]
-        green["🟢 Green\nminimal code to pass"]
-        refactor["🔵 Refactor\nclean up"]
-        commit["📦 Commit\none atomic commit"]
-        red --> green --> refactor --> commit
-    end
-
-    executor -. "each task" .-> tdd
+```
+┌──────────────────────────────────────────────────────────────────────────────────────────┐
+│                                /sea-go  ─  one phase                                     │
+│                                                                                          │
+│    PLAN                      DO                    CHECK                    ACT          │
+│                                                                                          │
+│  ┌────────────┐         ┌──────────────┐      ┌──────────────┐      ┌──────────────┐     │
+│  │  planner   │────────▶│   executor   │─────▶│   verifier   │─────▶│   feedback   │     │
+│  │            │         │              │      │   Stop hook  │      │              │     │
+│  │  spec +    │         │  task loop   │      │              │      │   → next     │     │
+│  │  plan.md   │         │              │      │   pass  ✓    │      │     phase    │     │
+│  └────────────┘         └──────┬───────┘      │   fail  → ✗  │      └──────────────┘     │
+│                                │              │     retry    │                           │
+│                                │              └──────────────┘                           │
+│                                │                                                         │
+│                                └─ TDD micro-cycle (Test-Driven Development)              │
+│                                   (per task, no exceptions)                              │
+│                                                                                          │
+│                                   ┌────────────────────────────────────────────────┐     │
+│                                   │   🔴 Red       ·  write a failing test first   │     │
+│                                   │        ↓                                       │     │
+│                                   │   🟢 Green     ·  minimal code to pass         │     │
+│                                   │        ↓                                       │     │
+│                                   │   🔵 Refactor  ·  clean up, names, dupes       │     │
+│                                   │        ↓                                       │     │
+│                                   │   📦 Commit    ·  one atomic commit            │     │
+│                                   └────────────────────────────────────────────────┘     │
+│                                                                                          │
+└──────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 The Stop hook is the quality gate: if tests fail after a commit, it blocks the turn, surfaces the failure reason, and forces a fix before Claude can continue. Up to 2 auto-retries — then it escalates to you.
@@ -76,14 +80,14 @@ The Stop hook is the quality gate: if tests fail after a commit, it blocks the t
 
 ## Commands
 
-| Command | What it does |
-|---|---|
-| `/sea-init [idea]` | Bootstrap a new or existing project — scaffold + roadmap |
-| `/sea-go [phase]` | Advance one phase: plan → implement → auto-QA |
-| `/sea-quick <task>` | Single task, single atomic commit |
-| `/sea-diagnose [focus]` | Health audit: tests, error handling, security |
-| `/sea-status` | Show current state and progress |
-| `/sea-roadmap [verb]` | View or edit the phase list |
+| Command                 | What it does                                             |
+| ----------------------- | -------------------------------------------------------- |
+| `/sea-init [idea]`      | Bootstrap a new or existing project — scaffold + roadmap |
+| `/sea-go [phase]`       | Advance one phase: plan → implement → auto-QA            |
+| `/sea-quick <task>`     | Single task, single atomic commit                        |
+| `/sea-diagnose [focus]` | Health audit: tests, error handling, security            |
+| `/sea-status`           | Show current state and progress                          |
+| `/sea-roadmap [verb]`   | View or edit the phase list                              |
 
 Commands with side-effects (`init`, `go`, `quick`) are **user-invoked only** — Claude will never trigger them automatically. Read-only commands (`diagnose`, `status`, `roadmap`) can be called automatically when the context calls for them.
 
