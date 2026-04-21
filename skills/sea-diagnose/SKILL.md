@@ -31,6 +31,8 @@ Launch the `researcher` agent with a diagnose-specific prompt:
 > 3. **Security basics.** Hardcoded secrets in files or git history, missing input validation on user-facing endpoints, SQL built by string concat, XSS risk points (unescaped user input in HTML), permissive CORS, missing rate limiting on public endpoints.
 >
 > Return findings with file:line references. Skip anything outside these three areas.
+>
+> **Output file: `.sea/research-diagnose.md`.** Write findings there incrementally as you verify claims — do not buffer the whole report for a single final message.
 
 If $ARGUMENTS names a single focus, tell the researcher to only cover that one.
 

@@ -11,6 +11,23 @@ All notable changes to `software-engineer-agents` are documented here.
 This project follows [Keep a Changelog](https://keepachangelog.com/) and
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+
+- **`researcher` agent resilience for multi-subrepo audits.** Agent now
+  writes incrementally to a caller-provided output path (`.sea/research.md`
+  for `/sea-init` Mode B, `.sea/research-diagnose.md` for `/sea-diagnose`)
+  and survives turn-budget exhaustion with a truncated-but-usable report
+  (`## STATUS: TRUNCATED at turn {N}` header). Raised `maxTurns` 15 → 25
+  to cover real-world Mode B workloads where mandatory reads alone
+  consume 4–6 turns before any claim verification. Added `Write` to the
+  agent's tool allowlist (report output only — `Edit` remains forbidden
+  to preserve the read-only guarantee on source files). Observed failure
+  in Venuer (NestJS backend + Next.js frontend monorepo, two consecutive
+  runs truncated mid-streaming with no output persisted) drove the
+  change.
+
 ## [3.0.0] — 2026-04-16
 
 ### Changed (BREAKING)

@@ -57,9 +57,24 @@ Goal: turn an idea into a scaffolded project with a phased roadmap.
 
 Goal: understand what exists, find the gaps, prioritize, and produce a completion roadmap.
 
-1. **Launch the `researcher` agent** with the prompt: *"Analyze this codebase. Produce the standard report: tech stack, structure, findings, priority actions. Focus on: test coverage, error handling, security basics, doc coverage."*
+1. **Launch the `researcher` agent** with the prompt:
 
-2. **Read the researcher's report.** Do not dump it to the user verbatim — summarize the top 3 findings and top 3 priority actions in your own words.
+   > Analyze this codebase. Produce the standard report: tech stack,
+   > structure, findings, priority actions. Focus on: test coverage,
+   > error handling, security basics, doc coverage.
+   >
+   > **Output file: `.sea/research.md`.** Write your findings there
+   > incrementally as you verify claims — do not buffer the entire
+   > report for a single final message. The final `Write` should
+   > contain the full structured report.
+   >
+   > Keep mandatory reading tight: CLAUDE.md + at most 3 context
+   > files. If the repo contains multiple subrepos, pick the one
+   > most central to the user's stated goal and audit it; mention
+   > the others in Findings as "not audited in this pass" rather
+   > than trying to cover everything and running out of turn budget.
+
+2. **Read the researcher's report** from `.sea/research.md` (falling back to the agent's final message if the file is absent or empty). Do not dump it to the user verbatim — summarize the top 3 findings and top 3 priority actions in your own words. If the report header starts with `## STATUS: TRUNCATED`, tell the user the audit was partial and offer a re-run scoped to the un-audited areas before building the roadmap.
 
 3. **Confirm the direction** with the user: *"Here's what I found. Want me to build a completion roadmap around these priorities, or should I focus elsewhere?"*
 
